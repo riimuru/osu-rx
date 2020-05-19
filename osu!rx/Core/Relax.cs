@@ -1,4 +1,5 @@
 ﻿using osu_rx.Configuration;
+using osu_rx.Core.Objects;
 using osu_rx.Dependencies;
 using osu_rx.Helpers;
 using osu_rx.osu;
@@ -264,7 +265,7 @@ namespace osu_rx.Core
                     if (lastOnNotePosition != null && distanceToLastPos <= configManager.HitScanMaxDistance)
                         return HitScanResult.ShouldHit;
                 }
-                else
+                else if (distanceToObject <= hitObjectRadius)
                     lastOnNotePosition = osuManager.CursorPosition;
             }
 

@@ -360,7 +360,7 @@ namespace osu_rx
             bool shouldExit = false;
             Task.Run(() =>
             {
-                while (Console.ReadKey(true).Key != ConsoleKey.Escape) ;
+                while (Console.ReadKey(true).Key != ConsoleKey.Escape);
 
                 shouldExit = true;
                 relax.Stop();
