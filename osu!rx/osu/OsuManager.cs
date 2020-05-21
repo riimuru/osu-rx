@@ -64,15 +64,6 @@ namespace osu_rx.osu
             }
         }
 
-        public bool IsPlayerLoaded
-        {
-            get
-            {
-                OsuProcess.Process.Refresh();
-                return OsuProcess.Process.MainWindowTitle.Contains('-');
-            }
-        }
-
         public bool IsInReplayMode
         {
             get
@@ -106,14 +97,9 @@ namespace osu_rx.osu
             }
         }
 
-        public bool CanLoad
-        {
-            get => CurrentState == OsuStates.Play && !IsInReplayMode;
-        }
-
         public bool CanPlay
         {
-            get => CurrentState == OsuStates.Play && IsPlayerLoaded && !IsInReplayMode;
+            get => CurrentState == OsuStates.Play && Player.IsLoaded && !IsInReplayMode;
         }
 
         public Vector2 CursorPosition //relative to playfield

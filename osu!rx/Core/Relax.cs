@@ -50,7 +50,7 @@ namespace osu_rx.Core
             float audioRate = (osuManager.CurrentMods.HasFlag(Mods.DoubleTime) || osuManager.CurrentMods.HasFlag(Mods.Nightcore)) ? 1.5f : osuManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75f : 1f;
             float maxBPM = configManager.MaxSingletapBPM / (audioRate / 2);
 
-            int index, lastTime, hitTime = 0;
+            int index, hitTime = 0;
             bool isHit, shouldStartAlternating, shouldAlternate;
             VirtualKeyCode currentKey;
             HitObject currentHitObject;
@@ -75,15 +75,6 @@ namespace osu_rx.Core
 
                     continue;
                 }
-
-                if (lastTime > osuManager.CurrentTime)
-                {
-                    reset(true);
-                    releaseAllKeys();
-                    continue;
-                }
-                else
-                    lastTime = osuManager.CurrentTime;
 
                 int currentTime = osuManager.CurrentTime + configManager.AudioOffset;
                 if (currentTime >= currentHitObject.StartTime - hitWindow50)
@@ -143,15 +134,14 @@ namespace osu_rx.Core
             while (osuManager.CanPlay && index >= currentBeatmap.HitObjects.Count && !shouldStop)
                 Thread.Sleep(5);
 
-            void reset(bool retry = false)
+            void reset()
             {
-                index = retry ? 0 : closestHitObjectIndex;
+                index = closestHitObjectIndex;
                 isHit = false;
                 currentKey = configManager.PrimaryKey;
                 currentHitObject = currentBeatmap.HitObjects[index];
                 updateAlternate();
                 currentHitTimings = randomizeHitObjectTimings(index, shouldAlternate, false);
-                lastTime = int.MinValue;
 
                 if (configManager.EnableTimewarp)
                     timewarp.Refresh();

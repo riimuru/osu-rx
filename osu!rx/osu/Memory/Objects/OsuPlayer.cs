@@ -2,7 +2,6 @@
 using OsuParsers.Enums;
 using System;
 using System.Linq;
-using System.Numerics;
 
 namespace osu_rx.osu.Memory.Objects
 {
@@ -15,6 +14,8 @@ namespace osu_rx.osu.Memory.Objects
             get => (UIntPtr)OsuProcess.ReadInt32(PointerToBaseAddress);
             protected set { }
         }
+
+        public bool IsLoaded => BaseAddress != UIntPtr.Zero && Ruleset.BaseAddress != UIntPtr.Zero && HitObjectManager.BaseAddress != UIntPtr.Zero;
 
         public OsuRuleset Ruleset
         {
