@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace osu_rx.Core.Objects
+namespace osu_rx.Core.Relax.Objects
 {
     //https://github.com/ppy/osu/blob/master/osu.Game/Rulesets/Objects/SliderPath.cs
     public class SliderPath

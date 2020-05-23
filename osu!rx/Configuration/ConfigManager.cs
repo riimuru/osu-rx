@@ -7,40 +7,52 @@ namespace osu_rx.Configuration
     {
         private Config config;
 
+        public bool EnableRelax
+        {
+            get => config.GetValue<bool>("EnableRelax", true);
+            set => config.SetValue<bool>("EnableRelax", value);
+        }
+
         public PlayStyles PlayStyle
         {
-            get => config.GetValue<PlayStyles>("PlayStyle", PlayStyles.Singletap);
-            set => config.SetValue<PlayStyles>("PlayStyle", value);
+            get => config.GetValue<PlayStyles>("RelaxPlayStyle", PlayStyles.Singletap);
+            set => config.SetValue<PlayStyles>("RelaxPlayStyle", value);
         }
 
         public VirtualKeyCode PrimaryKey
         {
-            get => config.GetValue<VirtualKeyCode>("PrimaryKey", VirtualKeyCode.VK_Z);
-            set => config.SetValue<VirtualKeyCode>("PrimaryKey", value);
+            get => config.GetValue<VirtualKeyCode>("RelaxPrimaryKey", VirtualKeyCode.VK_Z);
+            set => config.SetValue<VirtualKeyCode>("RelaxPrimaryKey", value);
         }
 
         public VirtualKeyCode SecondaryKey
         {
-            get => config.GetValue<VirtualKeyCode>("SecondaryKey", VirtualKeyCode.VK_X);
-            set => config.SetValue<VirtualKeyCode>("SecondaryKey", value);
+            get => config.GetValue<VirtualKeyCode>("RelaxSecondaryKey", VirtualKeyCode.VK_X);
+            set => config.SetValue<VirtualKeyCode>("RelaxSecondaryKey", value);
         }
 
         public VirtualKeyCode HitWindow100Key
         {
-            get => config.GetValue<VirtualKeyCode>("HitWindow100Key", VirtualKeyCode.SPACE);
-            set => config.SetValue<VirtualKeyCode>("HitWindow100Key", value);
+            get => config.GetValue<VirtualKeyCode>("RelaxHitWindow100Key", VirtualKeyCode.SPACE);
+            set => config.SetValue<VirtualKeyCode>("RelaxHitWindow100Key", value);
         }
 
         public int MaxSingletapBPM
         {
-            get => config.GetValue<int>("MaxSingletapBPM", 250);
-            set => config.SetValue<int>("MaxSingletapBPM", value);
+            get => config.GetValue<int>("RelaxMaxSingletapBPM", 250);
+            set => config.SetValue<int>("RelaxMaxSingletapBPM", value);
         }
 
         public int AudioOffset
         {
-            get => config.GetValue<int>("AudioOffset", 0);
-            set => config.SetValue<int>("AudioOffset", value);
+            get => config.GetValue<int>("RelaxAudioOffset", 0);
+            set => config.SetValue<int>("RelaxAudioOffset", value);
+        }
+
+        public int HoldBeforeSpinnerTime
+        {
+            get => config.GetValue<int>("RelaxHoldBeforeSpinnerTime", 500);
+            set => config.SetValue<int>("RelaxHoldBeforeSpinnerTime", value);
         }
 
         public bool UseCustomWindowTitle
@@ -59,12 +71,6 @@ namespace osu_rx.Configuration
         {
             get => config.GetValue<bool>("EnableHitScan", true);
             set => config.SetValue<bool>("EnableHitScan", value);
-        }
-
-        public int HoldBeforeSpinnerTime
-        {
-            get => config.GetValue<int>("HoldBeforeSpinnerTime", 500);
-            set => config.SetValue<int>("HoldBeforeSpinnerTime", value);
         }
 
         public bool EnableHitScanPrediction

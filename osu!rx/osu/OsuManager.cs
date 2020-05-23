@@ -210,7 +210,7 @@ namespace osu_rx.osu
             finally
             {
                 if (timeAddress == UIntPtr.Zero || stateAddress == UIntPtr.Zero || replayModeAddress == UIntPtr.Zero
-                    || Player == null || Player.PointerToBaseAddress == UIntPtr.Zero)
+                    || Player == null)
                 {
                     Console.WriteLine("\nScanning failed! Using IPC fallback...");
                     UsingIPCFallback = true;

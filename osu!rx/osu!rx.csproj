@@ -59,10 +59,10 @@
   <ItemGroup>
     <Compile Include="Configuration\ConfigManager.cs" />
     <Compile Include="Configuration\Playstyles.cs" />
-    <Compile Include="Core\HitScanResult.cs" />
-    <Compile Include="Core\Objects\SliderPath.cs" />
-    <Compile Include="Core\Relax.cs" />
-    <Compile Include="Core\Timewarp.cs" />
+    <Compile Include="Core\Relax\HitScanResult.cs" />
+    <Compile Include="Core\Relax\Objects\SliderPath.cs" />
+    <Compile Include="Core\Relax\Relax.cs" />
+    <Compile Include="Core\Timewarp\Timewarp.cs" />
     <Compile Include="Dependencies\DependencyContainer.cs" />
     <Compile Include="Helpers\CurveHelper.cs" />
     <Compile Include="osu\Memory\Objects\OsuHitObjectManager.cs" />

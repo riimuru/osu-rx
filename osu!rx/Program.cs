@@ -1,7 +1,9 @@
 ﻿using osu_rx.Configuration;
-using osu_rx.Core;
+using osu_rx.Core.Relax;
+using osu_rx.Core.Timewarp;
 using osu_rx.Dependencies;
 using osu_rx.osu;
+using OsuParsers.Beatmaps;
 using OsuParsers.Enums;
 using System;
 using System.Reflection;
@@ -16,6 +18,7 @@ namespace osu_rx
         private static OsuManager osuManager;
         private static ConfigManager configManager;
         private static Relax relax;
+        private static Timewarp timewarp;
         private static string defaultConsoleTitle;
 
         static void Main(string[] args)
@@ -36,6 +39,7 @@ namespace osu_rx
             DependencyContainer.Cache(configManager);
 
             relax = new Relax();
+            timewarp = new Timewarp();
 
             defaultConsoleTitle = Console.Title;
             if (configManager.UseCustomWindowTitle)
@@ -52,7 +56,7 @@ namespace osu_rx
             Console.Clear();
             Console.WriteLine($"osu!rx v{version} (MPGH release){(osuManager.UsingIPCFallback ? " | [IPC Fallback mode]" : string.Empty)}");
             Console.WriteLine("\n---Main Menu---");
-            Console.WriteLine("\n1. Start relax");
+            Console.WriteLine("\n1. Start");
             Console.WriteLine("2. Settings");
 
             if (osuManager.UsingIPCFallback)
@@ -61,7 +65,7 @@ namespace osu_rx
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.D1:
-                    StartRelax();
+                    DrawPlayer();
                     break;
                 case ConsoleKey.D2:
                     DrawSettings();
@@ -116,19 +120,24 @@ namespace osu_rx
         {
             Console.Clear();
             Console.WriteLine("---Relax Settings---\n");
-            Console.WriteLine($"1. Playstyle              | [{configManager.PlayStyle}]");
-            Console.WriteLine($"2. Primary key            | [{configManager.PrimaryKey}]");
-            Console.WriteLine($"3. Secondary key          | [{configManager.SecondaryKey}]");
-            Console.WriteLine($"4. Hit window 100 key     | [{configManager.HitWindow100Key}]");
-            Console.WriteLine($"5. Max singletap BPM      | [{configManager.MaxSingletapBPM}]");
-            Console.WriteLine($"6. Audio offset           | [{configManager.AudioOffset}]");
-            Console.WriteLine($"7. HoldBeforeSpinner time | [{configManager.HoldBeforeSpinnerTime}]");
+            Console.WriteLine($"1. Relax                  | [{(configManager.EnableRelax ? "ENABLED" : "DISABLED")}]");
+            Console.WriteLine($"2. Playstyle              | [{configManager.PlayStyle}]");
+            Console.WriteLine($"3. Primary key            | [{configManager.PrimaryKey}]");
+            Console.WriteLine($"4. Secondary key          | [{configManager.SecondaryKey}]");
+            Console.WriteLine($"5. Hit window 100 key     | [{configManager.HitWindow100Key}]");
+            Console.WriteLine($"6. Max singletap BPM      | [{configManager.MaxSingletapBPM}]");
+            Console.WriteLine($"7. Audio offset           | [{configManager.AudioOffset}]");
+            Console.WriteLine($"8. HoldBeforeSpinner time | [{configManager.HoldBeforeSpinnerTime}]");
 
             Console.WriteLine("\nESC. Back to settings");
 
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.D1:
+                    configManager.EnableRelax = !configManager.EnableRelax;
+                    DrawRelaxSettings();
+                    break;
+                case ConsoleKey.D2:
                     Console.Clear();
                     Console.WriteLine("Select new playstyle:\n");
                     PlayStyles[] playstyles = (PlayStyles[])Enum.GetValues(typeof(PlayStyles));
@@ -137,52 +146,52 @@ namespace osu_rx
                     if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int selected) && selected > 0 && selected < 5)
                         configManager.PlayStyle = (PlayStyles)selected - 1;
                     else
-                        goto case ConsoleKey.D1;
+                        goto case ConsoleKey.D2;
                     DrawRelaxSettings();
                     break;
-                case ConsoleKey.D2:
+                case ConsoleKey.D3:
                     Console.Clear();
                     Console.Write("Enter new primary key: ");
                     configManager.PrimaryKey = (VirtualKeyCode)Console.ReadKey(true).Key;
                     DrawRelaxSettings();
                     break;
-                case ConsoleKey.D3:
+                case ConsoleKey.D4:
                     Console.Clear();
                     Console.Write("Enter new secondary key: ");
                     configManager.SecondaryKey = (VirtualKeyCode)Console.ReadKey(true).Key;
                     DrawRelaxSettings();
                     break;
-                case ConsoleKey.D4:
+                case ConsoleKey.D5:
                     Console.Clear();
                     Console.Write("Enter new hit window 100 key: ");
                     configManager.HitWindow100Key = (VirtualKeyCode)Console.ReadKey(true).Key;
                     DrawRelaxSettings();
                     break;
-                case ConsoleKey.D5:
+                case ConsoleKey.D6:
                     Console.Clear();
                     Console.Write("Enter new max singletap BPM: ");
                     if (int.TryParse(Console.ReadLine(), out int bpm))
                         configManager.MaxSingletapBPM = bpm;
-                    else
-                        goto case ConsoleKey.D5;
-                    DrawRelaxSettings();
-                    break;
-                case ConsoleKey.D6:
-                    Console.Clear();
-                    Console.Write("Enter new audio offset: ");
-                    if (int.TryParse(Console.ReadLine(), out int offset))
-                        configManager.AudioOffset = offset;
                     else
                         goto case ConsoleKey.D6;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D7:
                     Console.Clear();
+                    Console.Write("Enter new audio offset: ");
+                    if (int.TryParse(Console.ReadLine(), out int offset))
+                        configManager.AudioOffset = offset;
+                    else
+                        goto case ConsoleKey.D7;
+                    DrawRelaxSettings();
+                    break;
+                case ConsoleKey.D8:
+                    Console.Clear();
                     Console.Write("Enter new HoldBeforeSpinner time: ");
                     if (int.TryParse(Console.ReadLine(), out int holdBeforeSpinnerTime))
                         configManager.HoldBeforeSpinnerTime = holdBeforeSpinnerTime;
                     else
-                        goto case ConsoleKey.D7;
+                        goto case ConsoleKey.D8;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.Escape:
@@ -355,15 +364,16 @@ namespace osu_rx
             }
         }
 
-        private static void StartRelax()
+        private static void DrawPlayer()
         {
             bool shouldExit = false;
             Task.Run(() =>
             {
-                while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+                while (Console.ReadKey(true).Key != ConsoleKey.Escape) ;
 
                 shouldExit = true;
                 relax.Stop();
+                timewarp.Stop();
             });
 
             while (!shouldExit)
@@ -378,18 +388,13 @@ namespace osu_rx
                 if (shouldExit)
                     break;
 
-                var beatmap = osuManager.Player.Beatmap;
-                if (beatmap.GeneralSection.Mode != Ruleset.Standard)
+                Beatmap beatmap = null;
+                try //TODO: find a way to not rely on this..? i really hate try-catch blocks :(
                 {
-                    Console.Clear();
-                    Console.WriteLine("Only osu!standard beatmaps are supported!\n\nReturn to song select to continue or press ESC to return to main menu.");
-
-                    while (osuManager.CanPlay && !shouldExit)
-                        Thread.Sleep(1);
-
-                    if (shouldExit)
-                        break;
-
+                    beatmap = osuManager.Player.Beatmap;
+                }
+                catch
+                {
                     continue;
                 }
 
@@ -397,7 +402,19 @@ namespace osu_rx
                 Console.WriteLine($"Playing {beatmap.MetadataSection.Artist} - {beatmap.MetadataSection.Title} ({beatmap.MetadataSection.Creator}) [{beatmap.MetadataSection.Version}]");
                 Console.WriteLine("\nPress ESC to return to the main menu.");
 
-                relax.Start();
+                var relaxTask = Task.Factory.StartNew(() =>
+                {
+                    if (configManager.EnableRelax && beatmap.GeneralSection.Mode == Ruleset.Standard)
+                        relax.Start();
+                });
+
+                var timewarpTask = Task.Factory.StartNew(() =>
+                {
+                    if (configManager.EnableTimewarp)
+                        timewarp.Start();
+                });
+
+                Task.WaitAll(relaxTask, timewarpTask);
             }
 
             DrawMainMenu();

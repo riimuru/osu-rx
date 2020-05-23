@@ -1,5 +1,5 @@
 ﻿using osu_rx.Configuration;
-using osu_rx.Core.Objects;
+using osu_rx.Core.Relax.Objects;
 using osu_rx.Dependencies;
 using osu_rx.Helpers;
 using osu_rx.osu;
@@ -12,7 +12,7 @@ using System.Threading;
 using WindowsInput;
 using WindowsInput.Native;
 
-namespace osu_rx.Core
+namespace osu_rx.Core.Relax
 {
     public class Relax
     {
@@ -29,13 +29,11 @@ namespace osu_rx.Core
 
         private Random random = new Random();
 
-        private Timewarp timewarp;
         public Relax()
         {
             osuManager = DependencyContainer.Get<OsuManager>();
             configManager = DependencyContainer.Get<ConfigManager>();
             inputSimulator = new InputSimulator();
-            timewarp = new Timewarp();
         }
 
         public void Start()
@@ -61,9 +59,6 @@ namespace osu_rx.Core
             while (osuManager.CanPlay && index < currentBeatmap.HitObjects.Count && !shouldStop)
             {
                 Thread.Sleep(1);
-
-                if (configManager.EnableTimewarp)
-                    timewarp.Update(configManager.TimewarpRate, audioRate);
 
                 if (osuManager.IsPaused)
                 {
@@ -128,9 +123,6 @@ namespace osu_rx.Core
 
             releaseAllKeys();
 
-            if (configManager.EnableTimewarp)
-                timewarp.Reset();
-
             while (osuManager.CanPlay && index >= currentBeatmap.HitObjects.Count && !shouldStop)
                 Thread.Sleep(5);
 
@@ -142,9 +134,6 @@ namespace osu_rx.Core
                 currentHitObject = currentBeatmap.HitObjects[index];
                 updateAlternate();
                 currentHitTimings = randomizeHitObjectTimings(index, shouldAlternate, false);
-
-                if (configManager.EnableTimewarp)
-                    timewarp.Refresh();
             }
 
             void updateAlternate()

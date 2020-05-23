@@ -150,8 +150,6 @@ namespace osu_rx.osu.Memory.Objects
                 OsuProcess.WriteMemory(bindableAddress + 0xC, BitConverter.GetBytes((int)value), sizeof(int));
             }
         }
-
-        public OsuConfigManager(UIntPtr baseAddress) => BaseAddress = baseAddress;
     }
 
     public enum ScaleMode

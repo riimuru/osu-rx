@@ -7,24 +7,37 @@ namespace osu_rx.osu.Memory.Objects
 {
     public class OsuPlayer : OsuObject
     {
-        public UIntPtr PointerToBaseAddress { get; private set; }
-
-        public override UIntPtr BaseAddress
+        public override bool IsLoaded
         {
-            get => (UIntPtr)OsuProcess.ReadInt32(PointerToBaseAddress);
-            protected set { }
+            get
+            {
+                OsuProcess.Process.Refresh();
+                string title = OsuProcess.Process.MainWindowTitle;
+
+                if (string.IsNullOrEmpty(title))
+                    title = "-";
+
+                return base.IsLoaded && title.Contains('-');
+            }
         }
 
-        public bool IsLoaded => BaseAddress != UIntPtr.Zero && Ruleset.BaseAddress != UIntPtr.Zero && HitObjectManager.BaseAddress != UIntPtr.Zero;
+        public OsuRuleset Ruleset { get; private set; }
 
-        public OsuRuleset Ruleset
-        {
-            get => new OsuRuleset((UIntPtr)OsuProcess.ReadInt32(BaseAddress + 0x60));
-        }
+        public OsuHitObjectManager HitObjectManager { get; private set; }
 
-        public OsuHitObjectManager HitObjectManager
+        public OsuPlayer(UIntPtr pointerToBaseAddress) : base(pointerToBaseAddress)
         {
-            get => new OsuHitObjectManager((UIntPtr)OsuProcess.ReadInt32(BaseAddress + 0x40));
+            Children = new OsuObject[]
+            {
+                Ruleset = new OsuRuleset
+                {
+                    Offset = 0x60
+                },
+                HitObjectManager = new OsuHitObjectManager
+                {
+                    Offset = 0x40
+                }
+            };
         }
 
         public Beatmap Beatmap
@@ -62,7 +75,5 @@ namespace osu_rx.osu.Memory.Objects
                 OsuProcess.WriteMemory(BaseAddress + 0x158, BitConverter.GetBytes(value), sizeof(int));
             }
         }
-
-        public OsuPlayer(UIntPtr pointerToBaseAddress) => PointerToBaseAddress = pointerToBaseAddress;
     }
 }

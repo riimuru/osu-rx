@@ -1,21 +1,51 @@
-﻿using osu_rx.Dependencies;
+﻿using osu_rx.Configuration;
+using osu_rx.Dependencies;
 using osu_rx.osu;
 using osu_rx.osu.Memory;
+using OsuParsers.Enums;
 using System;
 using System.Diagnostics;
+using System.Threading;
 
-namespace osu_rx.Core
+namespace osu_rx.Core.Timewarp
 {
     public class Timewarp
     {
+        public bool IsRunning { get; private set; }
+
         private const double defaultRate = 1147;
 
         private OsuManager osuManager;
+        private ConfigManager configManager;
         private UIntPtr audioRateAddress = UIntPtr.Zero;
+        private bool shouldStop;
+        private double initialRate;
 
-        public Timewarp() => osuManager = DependencyContainer.Get<OsuManager>();
+        public Timewarp()
+        {
+            osuManager = DependencyContainer.Get<OsuManager>();
+            configManager = DependencyContainer.Get<ConfigManager>();
+        }
 
-        public void Refresh()
+        public void Start()
+        {
+            shouldStop = false;
+            initialRate = (osuManager.CurrentMods.HasFlag(Mods.DoubleTime) || osuManager.CurrentMods.HasFlag(Mods.Nightcore)) ? 1.5 : osuManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75 : 1;
+            refresh();
+
+            while (!shouldStop && osuManager.CanPlay)
+            {
+                setRate(configManager.TimewarpRate);
+
+                Thread.Sleep(1);
+            }
+
+            setRate(shouldStop ? initialRate : 1, false);
+        }
+
+        public void Stop() => shouldStop = true;
+
+        private void refresh()
         {
             foreach (ProcessModule module in osuManager.OsuProcess.Process.Modules)
             {
@@ -35,7 +65,7 @@ namespace osu_rx.Core
             }
         }
 
-        public void Update(double rate, double initialRate)
+        private void setRate(double rate, bool bypass = true)
         {
             if (osuManager.OsuProcess.ReadDouble(audioRateAddress) != rate)
             {
@@ -44,13 +74,8 @@ namespace osu_rx.Core
             }
 
             //bypassing audio checks
-            osuManager.Player.AudioCheckTime = (int)(osuManager.CurrentTime * initialRate);
-        }
-
-        public void Reset()
-        {
-            osuManager.OsuProcess.WriteMemory(audioRateAddress, BitConverter.GetBytes(1), sizeof(double));
-            osuManager.OsuProcess.WriteMemory(audioRateAddress + 0x8, BitConverter.GetBytes(defaultRate), sizeof(double));
+            if (bypass)
+                osuManager.Player.AudioCheckTime = (int)(osuManager.CurrentTime * initialRate);
         }
     }
 }

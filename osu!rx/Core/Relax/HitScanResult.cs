@@ -1,4 +1,4 @@
-﻿namespace osu_rx.Core
+﻿namespace osu_rx.Core.Relax
 {
     public enum HitScanResult
     {
