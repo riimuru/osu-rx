@@ -64,18 +64,6 @@ namespace osu_rx.osu
             }
         }
 
-        public bool IsInReplayMode
-        {
-            get
-            {
-                if (!UsingIPCFallback)
-                    return OsuProcess.ReadBool(replayModeAddress);
-
-                var data = bulkClientDataMethod.Invoke(interProcessOsu, null);
-                return (bool)data.GetType().GetField("LReplayMode").GetValue(data);
-            }
-        }
-
         public string BeatmapChecksum
         {
             get
@@ -99,7 +87,7 @@ namespace osu_rx.osu
 
         public bool CanPlay
         {
-            get => CurrentState == OsuStates.Play && Player.IsLoaded && !IsInReplayMode;
+            get => CurrentState == OsuStates.Play && Player.IsLoaded && !Player.ReplayMode;
         }
 
         public Vector2 CursorPosition //relative to playfield
@@ -187,30 +175,25 @@ namespace osu_rx.osu
 
         private UIntPtr timeAddress;
         private UIntPtr stateAddress;
-        private UIntPtr replayModeAddress;
         private void scanMemory()
         {
             try
             {
                 Console.WriteLine("\nScanning for memory addresses (this may take a while)...");
 
-                //TODO: gooood this is dirty af
                 if (OsuProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr timeResult)
                     && OsuProcess.FindPattern(Signatures.State.Pattern, out UIntPtr stateResult)
-                    && OsuProcess.FindPattern(Signatures.ReplayMode.Pattern, out UIntPtr replayModeResult)
                     && OsuProcess.FindPattern(Signatures.Player.Pattern, out UIntPtr playerResult))
                 {
                     timeAddress = (UIntPtr)OsuProcess.ReadUInt32(timeResult + Signatures.Time.Offset);
                     stateAddress = (UIntPtr)OsuProcess.ReadUInt32(stateResult + Signatures.State.Offset);
-                    replayModeAddress = (UIntPtr)OsuProcess.ReadUInt32(replayModeResult + Signatures.ReplayMode.Offset);
                     Player = new OsuPlayer((UIntPtr)OsuProcess.ReadUInt32(playerResult + Signatures.Player.Offset));
                 }
             }
             catch { }
             finally
             {
-                if (timeAddress == UIntPtr.Zero || stateAddress == UIntPtr.Zero || replayModeAddress == UIntPtr.Zero
-                    || Player == null)
+                if (timeAddress == UIntPtr.Zero || stateAddress == UIntPtr.Zero || Player == null)
                 {
                     Console.WriteLine("\nScanning failed! Using IPC fallback...");
                     UsingIPCFallback = true;

@@ -16,12 +16,6 @@
             Offset = 0x8
         };
 
-        public static readonly Signature ReplayMode = new Signature
-        {
-            Pattern = "85 C0 75 0D 80 3D",
-            Offset = 0x6
-        };
-
         public static readonly Signature ConfigManager = new Signature
         {
             Pattern = "8B 45 DC 8B 0D",
