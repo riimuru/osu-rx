@@ -1,111 +1,36 @@
 ﻿using osu_rx.Dependencies;
-using osu_rx.Helpers;
 using osu_rx.osu.Memory;
 using osu_rx.osu.Memory.Objects;
 using OsuParsers.Enums;
 using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace osu_rx.osu
 {
     public class OsuManager
     {
-        [DllImport("user32.dll")]
-        private static extern bool GetCursorPos(out Point point);
-
-        private object interProcessOsu;
-        private MethodInfo bulkClientDataMethod;
-
         public OsuProcess OsuProcess { get; private set; }
 
         public OsuWindow OsuWindow { get; private set; }
 
-        public bool UsingIPCFallback { get; set; }
+        public OsuPlayer Player { get; private set; }
 
-        public int CurrentTime
-        {
-            get
-            {
-                if (!UsingIPCFallback)
-                    return OsuProcess.ReadInt32(timeAddress);
+        public bool LoadedSuccessfully { get; private set; } = true;
 
-                var data = bulkClientDataMethod.Invoke(interProcessOsu, null);
-                return (int)data.GetType().GetField("MenuTime").GetValue(data);
-            }
-        }
+        public int CurrentTime => OsuProcess.ReadInt32(timeAddress);
 
-        // Keep this function here to keep the program IPC-Safe
-        public Mods CurrentMods
-        {
-            get
-            {
-                if (!UsingIPCFallback)
-                    return Player.HitObjectManager.CurrentMods;
+        public bool IsPaused => !OsuProcess.ReadBool(timeAddress + Signatures.IsAudioPlayingOffset);
 
-                return Mods.None;
-            }
-        }
+        public OsuStates CurrentState => (OsuStates)OsuProcess.ReadInt32(stateAddress);
 
-        public bool IsPaused
-        {
-            get
-            {
-                if (!UsingIPCFallback)
-                    return !OsuProcess.ReadBool(timeAddress + Signatures.IsAudioPlayingOffset);
+        public Vector2 CursorPosition => Player.Ruleset.MousePosition - OsuWindow.PlayfieldPosition;
 
-                var data = bulkClientDataMethod.Invoke(interProcessOsu, null);
-                return !(bool)data.GetType().GetField("AudioPlaying").GetValue(data);
-            }
-        }
+        public bool CanPlay => CurrentState == OsuStates.Play && Player.IsLoaded && !Player.ReplayMode;
 
-        public string BeatmapChecksum
-        {
-            get
-            {
-                var data = bulkClientDataMethod.Invoke(interProcessOsu, null);
-                return (string)data.GetType().GetField("BeatmapChecksum").GetValue(data);
-            }
-        }
-
-        public OsuStates CurrentState
-        {
-            get
-            {
-                if (!UsingIPCFallback)
-                    return (OsuStates)OsuProcess.ReadInt32(stateAddress);
-
-                var data = bulkClientDataMethod.Invoke(interProcessOsu, null);
-                return (OsuStates)data.GetType().GetField("Mode").GetValue(data);
-            }
-        }
-
-        public bool CanPlay
-        {
-            get => CurrentState == OsuStates.Play && Player.IsLoaded && !Player.ReplayMode;
-        }
-
-        public Vector2 CursorPosition //relative to playfield
-        {
-            get
-            {
-                if (!UsingIPCFallback)
-                    return Player.Ruleset.MousePosition - OsuWindow.PlayfieldPosition;
-
-                GetCursorPos(out var pos);
-                return pos.ToVector2() - (OsuWindow.WindowPosition + OsuWindow.PlayfieldPosition);
-            }
-        }
-
-        public float HitObjectScalingFactor(float circleSize)
-        {
-            return 1f - 0.7f * (float)AdjustDifficulty(circleSize);
-        }
+        public float HitObjectScalingFactor(float circleSize) => 1f - 0.7f * (float)AdjustDifficulty(circleSize);
 
         public float HitObjectRadius(float circleSize)
         {
@@ -115,12 +40,6 @@ namespace osu_rx.osu
             return radius;
         }
 
-        public OsuPlayer Player { get; private set; }
-
-        public string PathToOsu { get; private set; }
-
-        public string SongsPath { get; private set; }
-
         public int HitWindow300(double od) => (int)DifficultyRange(od, 80, 50, 20);
         public int HitWindow100(double od) => (int)DifficultyRange(od, 140, 100, 60);
         public int HitWindow50(double od) => (int)DifficultyRange(od, 200, 150, 100);
@@ -129,9 +48,9 @@ namespace osu_rx.osu
 
         public double ApplyModsToDifficulty(double difficulty, double hardrockFactor)
         {
-            if (CurrentMods.HasFlag(Mods.Easy))
+            if (Player.HitObjectManager.CurrentMods.HasFlag(Mods.Easy))
                 difficulty = Math.Max(0, difficulty / 2);
-            if (CurrentMods.HasFlag(Mods.HardRock))
+            if (Player.HitObjectManager.CurrentMods.HasFlag(Mods.HardRock))
                 difficulty = Math.Min(10, difficulty * hardrockFactor);
 
             return difficulty;
@@ -168,7 +87,6 @@ namespace osu_rx.osu
             OsuWindow = new OsuWindow(osuProcess.MainWindowHandle);
 
             scanMemory();
-            connectToIPC();
 
             return true;
         }
@@ -177,17 +95,21 @@ namespace osu_rx.osu
         private UIntPtr stateAddress;
         private void scanMemory()
         {
+            bool timeResult = false, stateResult = false, playerResult = false;
+
             try
             {
                 Console.WriteLine("\nScanning for memory addresses (this may take a while)...");
 
-                if (OsuProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr timeResult)
-                    && OsuProcess.FindPattern(Signatures.State.Pattern, out UIntPtr stateResult)
-                    && OsuProcess.FindPattern(Signatures.Player.Pattern, out UIntPtr playerResult))
+                timeResult = OsuProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr timePointer);
+                stateResult = OsuProcess.FindPattern(Signatures.State.Pattern, out UIntPtr statePointer);
+                playerResult = OsuProcess.FindPattern(Signatures.Player.Pattern, out UIntPtr playerPointer);
+
+                if (timeResult && stateResult && playerResult)
                 {
-                    timeAddress = (UIntPtr)OsuProcess.ReadUInt32(timeResult + Signatures.Time.Offset);
-                    stateAddress = (UIntPtr)OsuProcess.ReadUInt32(stateResult + Signatures.State.Offset);
-                    Player = new OsuPlayer((UIntPtr)OsuProcess.ReadUInt32(playerResult + Signatures.Player.Offset));
+                    timeAddress = (UIntPtr)OsuProcess.ReadUInt32(timePointer + Signatures.Time.Offset);
+                    stateAddress = (UIntPtr)OsuProcess.ReadUInt32(statePointer + Signatures.State.Offset);
+                    Player = new OsuPlayer((UIntPtr)OsuProcess.ReadUInt32(playerPointer + Signatures.Player.Offset));
                 }
             }
             catch { }
@@ -195,26 +117,19 @@ namespace osu_rx.osu
             {
                 if (timeAddress == UIntPtr.Zero || stateAddress == UIntPtr.Zero || Player == null)
                 {
-                    Console.WriteLine("\nScanning failed! Using IPC fallback...");
-                    UsingIPCFallback = true;
-                    Thread.Sleep(3000);
+                    Console.Clear();
+                    Console.WriteLine("osu!rx failed to initialize:\n");
+                    Console.WriteLine("Memory scanning failed! Please report this on GitHub/MPGH.");
+                    Console.WriteLine("Please include as much info as possible (OS version, hack version, build source, debug info, etc.).");
+                    Console.WriteLine($"\n\nDebug Info:\n");
+                    Console.WriteLine($"Time result: {(timeResult ? "success" : "fail")}");
+                    Console.WriteLine($"State result: {(stateResult ? "success" : "fail")}");
+                    Console.WriteLine($"Player result: {(playerResult ? "success" : "fail")}");
+
+                    while (true)
+                        Thread.Sleep(1000);
                 }
             }
-        }
-
-        private void connectToIPC()
-        {
-            Console.WriteLine("\nConnecting to IPC...");
-
-            string assemblyPath = OsuProcess.Process.MainModule.FileName;
-
-            var assembly = Assembly.LoadFrom(assemblyPath);
-            var interProcessOsuType = assembly.ExportedTypes.First(a => a.FullName == "osu.Helpers.InterProcessOsu");
-
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) => eventArgs.Name.Contains("osu!") ? Assembly.LoadFrom(assemblyPath) : null;
-
-            interProcessOsu = Activator.GetObject(interProcessOsuType, "ipc://osu!/loader");
-            bulkClientDataMethod = interProcessOsuType.GetMethod("GetBulkClientData");
         }
     }
 }

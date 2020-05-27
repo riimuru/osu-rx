@@ -30,7 +30,7 @@ namespace osu_rx.Core.Timewarp
         public void Start()
         {
             shouldStop = false;
-            initialRate = (osuManager.CurrentMods.HasFlag(Mods.DoubleTime) || osuManager.CurrentMods.HasFlag(Mods.Nightcore)) ? 1.5 : osuManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75 : 1;
+            initialRate = (osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.DoubleTime) || osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.Nightcore)) ? 1.5 : osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75 : 1;
             refresh();
 
             while (!shouldStop && osuManager.CanPlay)
