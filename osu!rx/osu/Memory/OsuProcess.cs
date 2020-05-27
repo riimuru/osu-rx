@@ -109,7 +109,7 @@ namespace osu_rx.osu.Memory
         public string ReadString(UIntPtr address, Encoding encoding = null)
         {
             encoding = encoding ?? Encoding.UTF8;
-            UIntPtr stringAddress = (UIntPtr)ReadInt32(address);
+            UIntPtr stringAddress = (UIntPtr)ReadUInt32(address);
             int length = ReadInt32(stringAddress + 0x4) * (encoding == Encoding.UTF8 ? 2 : 1);
 
             return encoding.GetString(ReadMemory(stringAddress + 0x8, (uint)length)).Replace("\0", string.Empty);

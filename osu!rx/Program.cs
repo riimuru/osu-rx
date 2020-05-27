@@ -388,15 +388,7 @@ namespace osu_rx
                 if (shouldExit)
                     break;
 
-                Beatmap beatmap = null;
-                try //TODO: find a way to not rely on this..? i really hate try-catch blocks :(
-                {
-                    beatmap = osuManager.Player.Beatmap;
-                }
-                catch
-                {
-                    continue;
-                }
+                Beatmap beatmap = osuManager.Player.Beatmap;
 
                 Console.Clear();
                 Console.WriteLine($"Playing {beatmap.MetadataSection.Artist} - {beatmap.MetadataSection.Title} ({beatmap.MetadataSection.Creator}) [{beatmap.MetadataSection.Version}]");
@@ -405,7 +397,7 @@ namespace osu_rx
                 var relaxTask = Task.Factory.StartNew(() =>
                 {
                     if (configManager.EnableRelax && beatmap.GeneralSection.Mode == Ruleset.Standard)
-                        relax.Start();
+                        relax.Start(beatmap);
                 });
 
                 var timewarpTask = Task.Factory.StartNew(() =>

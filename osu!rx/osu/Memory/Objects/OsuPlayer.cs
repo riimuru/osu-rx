@@ -7,19 +7,9 @@ namespace osu_rx.osu.Memory.Objects
 {
     public class OsuPlayer : OsuObject
     {
-        public override bool IsLoaded
-        {
-            get
-            {
-                OsuProcess.Process.Refresh();
-                string title = OsuProcess.Process.MainWindowTitle;
+        private bool asyncLoadComplete => OsuProcess.ReadBool(BaseAddress + 0x186);
 
-                if (string.IsNullOrEmpty(title))
-                    title = "-";
-
-                return base.IsLoaded && title.Contains('-');
-            }
-        }
+        public override bool IsLoaded => base.IsLoaded && asyncLoadComplete;
 
         public OsuRuleset Ruleset { get; private set; }
 
@@ -44,7 +34,7 @@ namespace osu_rx.osu.Memory.Objects
         {
             get
             {
-                UIntPtr beatmapBase = (UIntPtr)OsuProcess.ReadInt32(BaseAddress + 0xD4);
+                UIntPtr beatmapBase = (UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0xD4);
                 var beatmap = new Beatmap();
 
                 int mode = OsuProcess.ReadInt32(beatmapBase + 0x114);
@@ -60,7 +50,7 @@ namespace osu_rx.osu.Memory.Objects
                 beatmap.DifficultySection.OverallDifficulty = OsuProcess.ReadFloat(beatmapBase + 0x38);
                 beatmap.DifficultySection.SliderMultiplier = OsuProcess.ReadDouble(beatmapBase + 0x8);
                 beatmap.DifficultySection.SliderTickRate = OsuProcess.ReadDouble(beatmapBase + 0x10);
-                beatmap.HitObjects = HitObjectManager.HitObjects.ToList();
+                beatmap.HitObjects = HitObjectManager.HitObjects;
 
                 return beatmap;
             }

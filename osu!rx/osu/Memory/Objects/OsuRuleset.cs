@@ -21,8 +21,8 @@ namespace osu_rx.osu.Memory.Objects
                 if (!isCtb)
                     return;
 
-                UIntPtr wank = (UIntPtr)OsuProcess.ReadInt32(BaseAddress + 0xA4);
-                UIntPtr catcherAddress = (UIntPtr)OsuProcess.ReadInt32(BaseAddress + 0x8C);
+                UIntPtr wank = (UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0xA4);
+                UIntPtr catcherAddress = (UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x8C);
 
                 OsuProcess.WriteMemory(wank + 0x8, BitConverter.GetBytes(value.X), sizeof(float));
                 OsuProcess.WriteMemory(wank + 0xC, BitConverter.GetBytes(1), sizeof(int));

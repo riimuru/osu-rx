@@ -200,10 +200,10 @@ namespace osu_rx.osu
                     && OsuProcess.FindPattern(Signatures.ReplayMode.Pattern, out UIntPtr replayModeResult)
                     && OsuProcess.FindPattern(Signatures.Player.Pattern, out UIntPtr playerResult))
                 {
-                    timeAddress = (UIntPtr)OsuProcess.ReadInt32(timeResult + Signatures.Time.Offset);
-                    stateAddress = (UIntPtr)OsuProcess.ReadInt32(stateResult + Signatures.State.Offset);
-                    replayModeAddress = (UIntPtr)OsuProcess.ReadInt32(replayModeResult + Signatures.ReplayMode.Offset);
-                    Player = new OsuPlayer((UIntPtr)OsuProcess.ReadInt32(playerResult + Signatures.Player.Offset));
+                    timeAddress = (UIntPtr)OsuProcess.ReadUInt32(timeResult + Signatures.Time.Offset);
+                    stateAddress = (UIntPtr)OsuProcess.ReadUInt32(stateResult + Signatures.State.Offset);
+                    replayModeAddress = (UIntPtr)OsuProcess.ReadUInt32(replayModeResult + Signatures.ReplayMode.Offset);
+                    Player = new OsuPlayer((UIntPtr)OsuProcess.ReadUInt32(playerResult + Signatures.Player.Offset));
                 }
             }
             catch { }

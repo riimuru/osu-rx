@@ -15,7 +15,7 @@ namespace osu_rx.osu.Memory.Objects
         {
             get
             {
-                UIntPtr modsObjectPointer = (UIntPtr)OsuProcess.ReadInt32(BaseAddress + 0x34);
+                UIntPtr modsObjectPointer = (UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x34);
                 int encryptedValue = OsuProcess.ReadInt32(modsObjectPointer + 0x08);
                 int decryptionKey = OsuProcess.ReadInt32(modsObjectPointer + 0x0C);
 
@@ -25,18 +25,20 @@ namespace osu_rx.osu.Memory.Objects
 
         public int HitObjectsCount => OsuProcess.ReadInt32(BaseAddress + 0x90);
 
-        public IEnumerable<HitObject> HitObjects
+        public List<HitObject> HitObjects
         {
             get
             {
+                var hitObjects = new List<HitObject>();
+
                 UIntPtr hitObjectsListAddress()
                 {
-                    UIntPtr hitObjectsListPointer = (UIntPtr)OsuProcess.ReadInt32(BaseAddress + 0x48);
+                    UIntPtr hitObjectsListPointer = (UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x48);
 
-                    return (UIntPtr)OsuProcess.ReadInt32(hitObjectsListPointer + 0x4);
+                    return (UIntPtr)OsuProcess.ReadUInt32(hitObjectsListPointer + 0x4);
                 }
 
-                UIntPtr hitObjectAddress(int index) => (UIntPtr)OsuProcess.ReadInt32(hitObjectsListAddress() + 0x8 + 0x4 * index);
+                UIntPtr hitObjectAddress(int index) => (UIntPtr)OsuProcess.ReadUInt32(hitObjectsListAddress() + 0x8 + 0x4 * index);
 
                 for (int i = 0; i < HitObjectsCount; i++)
                 {
@@ -60,14 +62,14 @@ namespace osu_rx.osu.Memory.Objects
                         case HitObjectType.Slider:
                             UIntPtr sliderPointsListAddress()
                             {
-                                UIntPtr sliderPointsPointer = (UIntPtr)OsuProcess.ReadInt32(hitObjectAddress(i) + 0xC0);
+                                UIntPtr sliderPointsPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectAddress(i) + 0xC0);
 
-                                return (UIntPtr)OsuProcess.ReadInt32(sliderPointsPointer + 0x4);
+                                return (UIntPtr)OsuProcess.ReadUInt32(sliderPointsPointer + 0x4);
                             }
 
                             int sliderPointsCount()
                             {
-                                UIntPtr sliderPointsPointer = (UIntPtr)OsuProcess.ReadInt32(hitObjectAddress(i) + 0xC0);
+                                UIntPtr sliderPointsPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectAddress(i) + 0xC0);
 
                                 return OsuProcess.ReadInt32(sliderPointsPointer + 0xC);
                             }
@@ -91,8 +93,10 @@ namespace osu_rx.osu.Memory.Objects
                             break;
                     }
 
-                    yield return hitObject;
+                    hitObjects.Add(hitObject);
                 }
+
+                return hitObjects;
             }
         }
     }

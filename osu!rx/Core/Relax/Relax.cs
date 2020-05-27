@@ -36,10 +36,10 @@ namespace osu_rx.Core.Relax
             inputSimulator = new InputSimulator();
         }
 
-        public void Start()
+        public void Start(Beatmap beatmap)
         {
             shouldStop = false;
-            currentBeatmap = postProcessBeatmap(osuManager.Player.Beatmap);
+            currentBeatmap = postProcessBeatmap(beatmap);
 
             hitWindow50 = osuManager.HitWindow50(currentBeatmap.DifficultySection.OverallDifficulty);
             hitWindow100 = osuManager.HitWindow100(currentBeatmap.DifficultySection.OverallDifficulty);

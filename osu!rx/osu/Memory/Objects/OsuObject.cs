@@ -9,24 +9,26 @@ namespace osu_rx.osu.Memory.Objects
     {
         protected OsuProcess OsuProcess;
 
+        public bool SingleComponentLoaded => Parent?.SingleComponentLoaded ?? true && BaseAddress != UIntPtr.Zero;
+
+        public virtual bool IsLoaded => SingleComponentLoaded && Children.All(child => child.IsLoaded);
+
         private UIntPtr? pointerToBaseAddress;
         public UIntPtr BaseAddress
         {
             get
             {
                 if (pointerToBaseAddress.HasValue)
-                    return (UIntPtr)OsuProcess.ReadInt32(pointerToBaseAddress.Value);
+                    return (UIntPtr)OsuProcess.ReadUInt32(pointerToBaseAddress.Value);
 
-                if (Parent.BaseAddress != UIntPtr.Zero)
-                    return (UIntPtr)OsuProcess.ReadInt32(Parent.BaseAddress + Offset);
+                if (Parent.SingleComponentLoaded)
+                    return (UIntPtr)OsuProcess.ReadUInt32(Parent.BaseAddress + Offset);
 
                 return UIntPtr.Zero;
             }
         }
 
         public int Offset;
-
-        public virtual bool IsLoaded => BaseAddress != UIntPtr.Zero && Children.All(child => child.IsLoaded);
 
         public OsuObject Parent { get; set; } = null;
 

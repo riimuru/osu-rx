@@ -61,7 +61,7 @@ namespace osu_rx.Core.Timewarp
                 audioRateAddress += Signatures.AudioRateOffsets[i];
 
                 if (i != Signatures.AudioRateOffsets.Length - 1)
-                    audioRateAddress = (UIntPtr)osuManager.OsuProcess.ReadInt32(audioRateAddress);
+                    audioRateAddress = (UIntPtr)osuManager.OsuProcess.ReadUInt32(audioRateAddress);
             }
         }
 
