@@ -50,7 +50,7 @@ namespace osu_rx.osu.Memory.Objects
                 beatmap.DifficultySection.OverallDifficulty = OsuProcess.ReadFloat(beatmapBase + 0x38);
                 beatmap.DifficultySection.SliderMultiplier = OsuProcess.ReadDouble(beatmapBase + 0x8);
                 beatmap.DifficultySection.SliderTickRate = OsuProcess.ReadDouble(beatmapBase + 0x10);
-                beatmap.HitObjects = HitObjectManager.HitObjects;
+                beatmap.HitObjects = HitObjectManager.HitObjects.ToList();
 
                 return beatmap;
             }

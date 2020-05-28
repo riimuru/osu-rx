@@ -25,34 +25,29 @@ namespace osu_rx.osu.Memory.Objects
 
         public int HitObjectsCount => OsuProcess.ReadInt32(BaseAddress + 0x90);
 
-        public List<HitObject> HitObjects
+        public IEnumerable<HitObject> HitObjects
         {
             get
             {
-                var hitObjects = new List<HitObject>();
+                UIntPtr hitObjectsListPointer = (UIntPtr)OsuProcess.ReadInt32(BaseAddress + 0x48);
+                UIntPtr hitObjectsList = (UIntPtr)OsuProcess.ReadInt32(hitObjectsListPointer + 0x4);
+                int hitObjectsCount = OsuProcess.ReadInt32(hitObjectsListPointer + 0xC);
 
-                UIntPtr hitObjectsListAddress()
+                for (int i = 0; i < hitObjectsCount; i++)
                 {
-                    UIntPtr hitObjectsListPointer = (UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x48);
+                    UIntPtr hitObjectPointer = (UIntPtr)OsuProcess.ReadInt32(hitObjectsList + 0x8 + 0x4 * i);
 
-                    return (UIntPtr)OsuProcess.ReadUInt32(hitObjectsListPointer + 0x4);
-                }
-
-                UIntPtr hitObjectAddress(int index) => (UIntPtr)OsuProcess.ReadUInt32(hitObjectsListAddress() + 0x8 + 0x4 * index);
-
-                for (int i = 0; i < HitObjectsCount; i++)
-                {
                     HitObject hitObject = null;
 
                     //TODO: expose this enum in osuparsers
-                    HitObjectType type = (HitObjectType)OsuProcess.ReadInt32(hitObjectAddress(i) + 0x18);
+                    HitObjectType type = (HitObjectType)OsuProcess.ReadInt32(hitObjectPointer + 0x18);
                     type &= ~HitObjectType.ComboOffset;
                     type &= ~HitObjectType.NewCombo;
 
-                    int startTime = OsuProcess.ReadInt32(hitObjectAddress(i) + 0x10);
-                    int endTime = OsuProcess.ReadInt32(hitObjectAddress(i) + 0x14);
-                    HitSoundType hitSoundType = (HitSoundType)OsuProcess.ReadInt32(hitObjectAddress(i) + 0x1C);
-                    Vector2 position = new Vector2(OsuProcess.ReadFloat(hitObjectAddress(i) + 0x38), OsuProcess.ReadFloat(hitObjectAddress(i) + 0x3C));
+                    int startTime = OsuProcess.ReadInt32(hitObjectPointer + 0x10);
+                    int endTime = OsuProcess.ReadInt32(hitObjectPointer + 0x14);
+                    HitSoundType hitSoundType = (HitSoundType)OsuProcess.ReadInt32(hitObjectPointer + 0x1C);
+                    Vector2 position = new Vector2(OsuProcess.ReadFloat(hitObjectPointer + 0x38), OsuProcess.ReadFloat(hitObjectPointer + 0x3C));
 
                     switch (type)
                     {
@@ -60,32 +55,19 @@ namespace osu_rx.osu.Memory.Objects
                             hitObject = new HitCircle(position, startTime, endTime, hitSoundType, null, false, 0);
                             break;
                         case HitObjectType.Slider:
-                            UIntPtr sliderPointsListAddress()
-                            {
-                                UIntPtr sliderPointsPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectAddress(i) + 0xC0);
-
-                                return (UIntPtr)OsuProcess.ReadUInt32(sliderPointsPointer + 0x4);
-                            }
-
-                            int sliderPointsCount()
-                            {
-                                UIntPtr sliderPointsPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectAddress(i) + 0xC0);
-
-                                return OsuProcess.ReadInt32(sliderPointsPointer + 0xC);
-                            }
-
-                            int repeats = OsuProcess.ReadInt32(hitObjectAddress(i) + 0x20);
-                            double pixelLength = OsuProcess.ReadDouble(hitObjectAddress(i) + 0x8);
-                            CurveType curveType = (CurveType)OsuProcess.ReadInt32(hitObjectAddress(i) + 0xE8);
+                            int repeats = OsuProcess.ReadInt32(hitObjectPointer + 0x20);
+                            double pixelLength = OsuProcess.ReadDouble(hitObjectPointer + 0x8);
+                            CurveType curveType = (CurveType)OsuProcess.ReadInt32(hitObjectPointer + 0xE8);
+                            UIntPtr sliderPointsPointer = (UIntPtr)OsuProcess.ReadInt32(hitObjectPointer + 0xC0);
+                            UIntPtr sliderPointsList = (UIntPtr)OsuProcess.ReadInt32(sliderPointsPointer + 0x4);
+                            int sliderPointsCount = OsuProcess.ReadInt32(sliderPointsPointer + 0xC);
                             List<Vector2> sliderPoints = new List<Vector2>();
-
-                            for (int j = 0; j < sliderPointsCount(); j++)
+                            for (int j = 0; j < sliderPointsCount; j++)
                             {
-                                UIntPtr sliderPoint = sliderPointsListAddress() + 0x8 + 0x8 * j;
+                                UIntPtr sliderPoint = sliderPointsList + 0x8 + 0x8 * j;
 
                                 sliderPoints.Add(new Vector2(OsuProcess.ReadFloat(sliderPoint), OsuProcess.ReadFloat(sliderPoint + 0x4)));
                             }
-
                             hitObject = new Slider(position, startTime, endTime, hitSoundType, curveType, sliderPoints, repeats, pixelLength, false, 0);
                             break;
                         case HitObjectType.Spinner:
@@ -93,10 +75,8 @@ namespace osu_rx.osu.Memory.Objects
                             break;
                     }
 
-                    hitObjects.Add(hitObject);
+                    yield return hitObject;
                 }
-
-                return hitObjects;
             }
         }
     }

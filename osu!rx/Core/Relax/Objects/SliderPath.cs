@@ -53,6 +53,16 @@ namespace osu_rx.Core.Relax.Objects
             return interpolateVertices(indexOfDistance(d), d);
         }
 
+        public Vector2 PositionAtTime(int time)
+        {
+            float sliderDuration = slider.EndTime - slider.StartTime;
+            float currentSliderTime = time - slider.StartTime;
+            double progress = (currentSliderTime / sliderDuration).Clamp(0, 1) * slider.Repeats % 1;
+            progress = ProgressAt(progress);
+
+            return PositionAt(progress);
+        }
+
         private List<Vector2> calculateSubpath(List<Vector2> points)
         {
             switch (CurveType)
