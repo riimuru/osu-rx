@@ -5,8 +5,8 @@ osu!standard relax hack
 osu!rx is still under development. Bug reports, feature requests, pull requests and any other help or feedback are very much appreciated!
 
 Hit Timing randomization and HitScan need improvements and your feedback. Take a look at the code to get started!
-- [Hit Timings randomization](https://github.com/mrflashstudio/osu-rx/blob/master/osu!rx/Core/Relax.cs#L254)
-- [HitScan](https://github.com/mrflashstudio/osu-rx/blob/master/osu!rx/Core/Relax.cs#L209)
+- [Hit Timings randomization](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L49)
+- [HitScan](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L102)
 
 ## Features
 - **Automatic beatmap detection:** you don't need to alt-tab from osu! to select beatmap manually, osu!rx will do all the dirty work for you.
@@ -22,8 +22,6 @@ Hit Timing randomization and HitScan need improvements and your feedback. Take a
 - **HitWindow100 Key:** if this key is pressed, osu!rx will widen current hit timings so you can get more 100s and slightly increase your Unstable Rate.
 
 - **HitScan:** it will scan for current cursor position and determine whether relax should hit right now, earlier or later.
-
-- **osu!rx won't ever be outdated:** osu!rx has IPC Fallback mode which will turn on if memory scanning fails. While this mode is on, osu!rx will communicate with osu! through IPC to get needed variables. So if there will be any breaking-updates to osu!, most of osu!rx's functions will continue to work.
 
 ## Running osu!rx
 **Download latest build from one of the sources below:**  
