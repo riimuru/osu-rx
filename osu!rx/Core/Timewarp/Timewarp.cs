@@ -75,7 +75,7 @@ namespace osu_rx.Core.Timewarp
 
             //bypassing audio checks
             if (bypass)
-                osuManager.Player.AudioCheckTime = (int)(osuManager.CurrentTime * initialRate);
+                osuManager.Player.AudioCheckCount = int.MinValue;
         }
     }
 }

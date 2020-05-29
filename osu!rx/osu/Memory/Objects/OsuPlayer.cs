@@ -58,14 +58,10 @@ namespace osu_rx.osu.Memory.Objects
 
         public bool ReplayMode => OsuProcess.ReadBool(BaseAddress + 0x17E);
 
-        public int AudioCheckTime
+        public int AudioCheckCount
         {
-            get => OsuProcess.ReadInt32(BaseAddress + 0x154);
-            set
-            {
-                OsuProcess.WriteMemory(BaseAddress + 0x154, BitConverter.GetBytes(value), sizeof(int));
-                OsuProcess.WriteMemory(BaseAddress + 0x158, BitConverter.GetBytes(value), sizeof(int));
-            }
+            get => OsuProcess.ReadInt32(BaseAddress + 0x150);
+            set => OsuProcess.WriteMemory(BaseAddress + 0x150, BitConverter.GetBytes(value), sizeof(int));
         }
     }
 }
