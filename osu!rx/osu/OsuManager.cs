@@ -1,7 +1,7 @@
 ﻿using osu_rx.Dependencies;
 using osu_rx.osu.Memory;
-using osu_rx.osu.Memory.Bindings;
 using osu_rx.osu.Memory.Objects;
+using osu_rx.osu.Memory.Objects.Bindings;
 using osu_rx.osu.Memory.Objects.Player;
 using osu_rx.osu.Memory.Objects.Window;
 using OsuParsers.Enums;

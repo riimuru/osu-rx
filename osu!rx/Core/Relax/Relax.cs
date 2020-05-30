@@ -2,7 +2,7 @@
 using osu_rx.Core.Relax.Accuracy;
 using osu_rx.Dependencies;
 using osu_rx.osu;
-using osu_rx.osu.Memory.Bindings;
+using osu_rx.osu.Memory.Objects.Bindings;
 using OsuParsers.Beatmaps;
 using OsuParsers.Beatmaps.Objects;
 using OsuParsers.Enums;

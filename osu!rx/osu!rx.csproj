@@ -68,8 +68,8 @@
     <Compile Include="Core\Timewarp\Timewarp.cs" />
     <Compile Include="Dependencies\DependencyContainer.cs" />
     <Compile Include="Helpers\CurveHelper.cs" />
-    <Compile Include="osu\Memory\Bindings\BindingManager.cs" />
-    <Compile Include="osu\Memory\Bindings\Bindings.cs" />
+    <Compile Include="osu\Memory\Objects\Bindings\BindingManager.cs" />
+    <Compile Include="osu\Memory\Objects\Bindings\Bindings.cs" />
     <Compile Include="osu\Memory\Objects\Player\OsuHitObjectManager.cs" />
     <Compile Include="osu\Memory\Objects\Player\OsuPlayer.cs" />
     <Compile Include="osu\Memory\Objects\Player\OsuRuleset.cs" />
