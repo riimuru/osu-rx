@@ -57,7 +57,7 @@ namespace osu_rx.Core.Relax.Objects
         {
             float sliderDuration = slider.EndTime - slider.StartTime;
             float currentSliderTime = time - slider.StartTime;
-            double progress = (currentSliderTime / sliderDuration).Clamp(0, 1) * slider.Repeats % 1;
+            double progress = (currentSliderTime / sliderDuration).Clamp(0, 1);
             progress = ProgressAt(progress);
 
             return PositionAt(progress);
