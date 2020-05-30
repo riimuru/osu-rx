@@ -24,8 +24,8 @@
 
         public static readonly Signature Viewport = new Signature
         {
-            Pattern = "89 45 A8 89 5D A4 8B 15",
-            Offset = 0x8
+            Pattern = "56 FF 75 F0 8B 15",
+            Offset = 0x6
         };
 
         //TODO: i couldn't create signature for this one :(
