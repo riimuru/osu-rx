@@ -38,7 +38,7 @@ namespace osu_rx.Core.Relax
 
             hitWindow50 = osuManager.HitWindow50(currentBeatmap.DifficultySection.OverallDifficulty);
 
-            float audioRate = (osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.DoubleTime) || osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.Nightcore)) ? 1.5f : osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75f : 1f;
+            float audioRate = osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.DoubleTime) ? 1.5f : osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75f : 1f;
             float maxBPM = configManager.MaxSingletapBPM / (audioRate / 2);
 
             int index, hitTime = 0;

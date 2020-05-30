@@ -3,7 +3,7 @@ using OsuParsers.Enums;
 using System;
 using System.Linq;
 
-namespace osu_rx.osu.Memory.Objects
+namespace osu_rx.osu.Memory.Objects.Player
 {
     public class OsuPlayer : OsuObject
     {

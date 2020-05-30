@@ -14,7 +14,7 @@ namespace osu_rx.osu.Memory.Objects
         public virtual bool IsLoaded => SingleComponentLoaded && Children.All(child => child.IsLoaded);
 
         private UIntPtr? pointerToBaseAddress;
-        public UIntPtr BaseAddress
+        public virtual UIntPtr BaseAddress
         {
             get
             {

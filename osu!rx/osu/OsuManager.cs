@@ -1,6 +1,8 @@
 ﻿using osu_rx.Dependencies;
 using osu_rx.osu.Memory;
 using osu_rx.osu.Memory.Objects;
+using osu_rx.osu.Memory.Objects.Player;
+using osu_rx.osu.Memory.Objects.Window;
 using OsuParsers.Enums;
 using System;
 using System.Diagnostics;
@@ -14,7 +16,7 @@ namespace osu_rx.osu
     {
         public OsuProcess OsuProcess { get; private set; }
 
-        public OsuWindow OsuWindow { get; private set; }
+        public OsuWindowManager WindowManager { get; private set; }
 
         public OsuPlayer Player { get; private set; }
 
@@ -26,7 +28,7 @@ namespace osu_rx.osu
 
         public OsuStates CurrentState => (OsuStates)OsuProcess.ReadInt32(stateAddress);
 
-        public Vector2 CursorPosition => Player.Ruleset.MousePosition - OsuWindow.PlayfieldPosition;
+        public Vector2 CursorPosition => Player.Ruleset.MousePosition - WindowManager.PlayfieldPosition;
 
         public bool CanPlay => CurrentState == OsuStates.Play && Player.IsLoaded && !Player.ReplayMode;
 
@@ -34,8 +36,8 @@ namespace osu_rx.osu
 
         public float HitObjectRadius(float circleSize)
         {
-            float size = (float)(OsuWindow.PlayfieldSize.X / 8f * HitObjectScalingFactor(circleSize));
-            float radius = size / 2f / OsuWindow.PlayfieldRatio * 1.00041f;
+            float size = (float)(WindowManager.PlayfieldSize.X / 8f * HitObjectScalingFactor(circleSize));
+            float radius = size / 2f / WindowManager.PlayfieldRatio * 1.00041f;
 
             return radius;
         }
@@ -84,8 +86,6 @@ namespace osu_rx.osu
             OsuProcess = new OsuProcess(osuProcess);
             DependencyContainer.Cache(OsuProcess);
 
-            OsuWindow = new OsuWindow(osuProcess.MainWindowHandle);
-
             scanMemory();
 
             return true;
@@ -95,7 +95,7 @@ namespace osu_rx.osu
         private UIntPtr stateAddress;
         private void scanMemory()
         {
-            bool timeResult = false, stateResult = false, playerResult = false;
+            bool timeResult = false, stateResult = false, viewportResult = false, playerResult = false;
 
             try
             {
@@ -103,19 +103,21 @@ namespace osu_rx.osu
 
                 timeResult = OsuProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr timePointer);
                 stateResult = OsuProcess.FindPattern(Signatures.State.Pattern, out UIntPtr statePointer);
+                viewportResult = OsuProcess.FindPattern(Signatures.Viewport.Pattern, out UIntPtr viewportPointer);
                 playerResult = OsuProcess.FindPattern(Signatures.Player.Pattern, out UIntPtr playerPointer);
 
-                if (timeResult && stateResult && playerResult)
+                if (timeResult && stateResult && viewportResult && playerResult)
                 {
                     timeAddress = (UIntPtr)OsuProcess.ReadUInt32(timePointer + Signatures.Time.Offset);
                     stateAddress = (UIntPtr)OsuProcess.ReadUInt32(statePointer + Signatures.State.Offset);
+                    WindowManager = new OsuWindowManager((UIntPtr)OsuProcess.ReadUInt32(viewportPointer + Signatures.Viewport.Offset));
                     Player = new OsuPlayer((UIntPtr)OsuProcess.ReadUInt32(playerPointer + Signatures.Player.Offset));
                 }
             }
             catch { }
             finally
             {
-                if (timeAddress == UIntPtr.Zero || stateAddress == UIntPtr.Zero || Player == null)
+                if (timeAddress == UIntPtr.Zero || stateAddress == UIntPtr.Zero || WindowManager == null || Player == null)
                 {
                     Console.Clear();
                     Console.WriteLine("osu!rx failed to initialize:\n");
@@ -124,6 +126,7 @@ namespace osu_rx.osu
                     Console.WriteLine($"\n\nDebug Info:\n");
                     Console.WriteLine($"Time result: {(timeResult ? "success" : "fail")}");
                     Console.WriteLine($"State result: {(stateResult ? "success" : "fail")}");
+                    Console.WriteLine($"Viewport result: {(viewportResult ? "success" : "fail")}");
                     Console.WriteLine($"Player result: {(playerResult ? "success" : "fail")}");
 
                     while (true)

@@ -66,7 +66,7 @@ namespace osu_rx.Core.Relax.Accuracy
             if (hitObject is Slider && osuManager.CurrentTime > hitObject.StartTime)
                 hitObjectPosition += lastSliderPath.PositionAtTime(osuManager.CurrentTime);
 
-            float distanceToObject = Vector2.Distance(osuManager.CursorPosition, hitObjectPosition * osuManager.OsuWindow.PlayfieldRatio);
+            float distanceToObject = Vector2.Distance(osuManager.CursorPosition, hitObjectPosition * osuManager.WindowManager.PlayfieldRatio);
             float distanceToLastPos = Vector2.Distance(osuManager.CursorPosition, lastOnNotePosition ?? Vector2.Zero);
 
             if (osuManager.CurrentTime > hitObject.EndTime + hitWindow50)
@@ -134,7 +134,7 @@ namespace osu_rx.Core.Relax.Accuracy
                 if (startTime > time)
                     break;
 
-                float distanceToObject = Vector2.Distance(cursorPosition, hitObject.Position * osuManager.OsuWindow.PlayfieldRatio);
+                float distanceToObject = Vector2.Distance(cursorPosition, hitObject.Position * osuManager.WindowManager.PlayfieldRatio);
                 if (distanceToObject <= osuManager.HitObjectRadius(currentBeatmap.DifficultySection.CircleSize))
                     return true;
             }

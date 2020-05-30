@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace osu_rx.osu.Memory.Objects
+namespace osu_rx.osu.Memory.Objects.Player
 {
     public class OsuRuleset : OsuObject
     {
