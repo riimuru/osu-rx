@@ -1,5 +1,6 @@
 ﻿using osu_rx.Dependencies;
 using osu_rx.osu.Memory;
+using osu_rx.osu.Memory.Bindings;
 using osu_rx.osu.Memory.Objects;
 using osu_rx.osu.Memory.Objects.Player;
 using osu_rx.osu.Memory.Objects.Window;
@@ -17,6 +18,8 @@ namespace osu_rx.osu
         public OsuProcess OsuProcess { get; private set; }
 
         public OsuWindowManager WindowManager { get; private set; }
+
+        public BindingManager BindingManager { get; private set; }
 
         public OsuPlayer Player { get; private set; }
 
@@ -95,7 +98,7 @@ namespace osu_rx.osu
         private UIntPtr stateAddress;
         private void scanMemory()
         {
-            bool timeResult = false, stateResult = false, viewportResult = false, playerResult = false;
+            bool timeResult = false, stateResult = false, viewportResult = false, bindingManagerResult = false, playerResult = false;
 
             try
             {
@@ -104,20 +107,22 @@ namespace osu_rx.osu
                 timeResult = OsuProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr timePointer);
                 stateResult = OsuProcess.FindPattern(Signatures.State.Pattern, out UIntPtr statePointer);
                 viewportResult = OsuProcess.FindPattern(Signatures.Viewport.Pattern, out UIntPtr viewportPointer);
+                bindingManagerResult = OsuProcess.FindPattern(Signatures.BindingManager.Pattern, out UIntPtr bindingManagerPointer);
                 playerResult = OsuProcess.FindPattern(Signatures.Player.Pattern, out UIntPtr playerPointer);
 
-                if (timeResult && stateResult && viewportResult && playerResult)
+                if (timeResult && stateResult && viewportResult && bindingManagerResult && playerResult)
                 {
                     timeAddress = (UIntPtr)OsuProcess.ReadUInt32(timePointer + Signatures.Time.Offset);
                     stateAddress = (UIntPtr)OsuProcess.ReadUInt32(statePointer + Signatures.State.Offset);
                     WindowManager = new OsuWindowManager((UIntPtr)OsuProcess.ReadUInt32(viewportPointer + Signatures.Viewport.Offset));
+                    BindingManager = new BindingManager((UIntPtr)OsuProcess.ReadUInt32(bindingManagerPointer + Signatures.BindingManager.Offset));
                     Player = new OsuPlayer((UIntPtr)OsuProcess.ReadUInt32(playerPointer + Signatures.Player.Offset));
                 }
             }
             catch { }
             finally
             {
-                if (timeAddress == UIntPtr.Zero || stateAddress == UIntPtr.Zero || WindowManager == null || Player == null)
+                if (timeAddress == UIntPtr.Zero || stateAddress == UIntPtr.Zero || WindowManager == null || BindingManager == null || Player == null)
                 {
                     Console.Clear();
                     Console.WriteLine("osu!rx failed to initialize:\n");
@@ -127,6 +132,7 @@ namespace osu_rx.osu
                     Console.WriteLine($"Time result: {(timeResult ? "success" : "fail")}");
                     Console.WriteLine($"State result: {(stateResult ? "success" : "fail")}");
                     Console.WriteLine($"Viewport result: {(viewportResult ? "success" : "fail")}");
+                    Console.WriteLine($"BindingManager result: {(bindingManagerResult ? "success" : "fail")}");
                     Console.WriteLine($"Player result: {(playerResult ? "success" : "fail")}");
 
                     while (true)

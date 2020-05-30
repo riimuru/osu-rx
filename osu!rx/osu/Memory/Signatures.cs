@@ -16,16 +16,22 @@
             Offset = 0x8
         };
 
-        public static readonly Signature Player = new Signature
-        {
-            Pattern = "FF 50 0C 8B D8 8B 15",
-            Offset = 0x7
-        };
-
         public static readonly Signature Viewport = new Signature
         {
             Pattern = "56 FF 75 F0 8B 15",
             Offset = 0x6
+        };
+
+        public static readonly Signature BindingManager = new Signature
+        {
+            Pattern = "8B 40 08 89 45 9C 8B 35",
+            Offset = 0x8
+        };
+
+        public static readonly Signature Player = new Signature
+        {
+            Pattern = "FF 50 0C 8B D8 8B 15",
+            Offset = 0x7
         };
 
         //TODO: i couldn't create signature for this one :(

@@ -19,16 +19,16 @@ namespace osu_rx.Configuration
             set => config.SetValue<PlayStyles>("RelaxPlayStyle", value);
         }
 
-        public VirtualKeyCode PrimaryKey
+        public OsuKeys PrimaryKey
         {
-            get => config.GetValue<VirtualKeyCode>("RelaxPrimaryKey", VirtualKeyCode.VK_Z);
-            set => config.SetValue<VirtualKeyCode>("RelaxPrimaryKey", value);
+            get => config.GetValue<OsuKeys>("RelaxPrimaryKey", OsuKeys.K1M1);
+            set => config.SetValue<OsuKeys>("RelaxPrimaryKey", value);
         }
 
-        public VirtualKeyCode SecondaryKey
+        public OsuKeys SecondaryKey
         {
-            get => config.GetValue<VirtualKeyCode>("RelaxSecondaryKey", VirtualKeyCode.VK_X);
-            set => config.SetValue<VirtualKeyCode>("RelaxSecondaryKey", value);
+            get => config.GetValue<OsuKeys>("RelaxSecondaryKey", OsuKeys.K2M2);
+            set => config.SetValue<OsuKeys>("RelaxSecondaryKey", value);
         }
 
         public VirtualKeyCode HitWindow100Key

@@ -2,6 +2,7 @@
 using osu_rx.Core.Relax;
 using osu_rx.Core.Timewarp;
 using osu_rx.Dependencies;
+using osu_rx.Helpers;
 using osu_rx.osu;
 using OsuParsers.Beatmaps;
 using OsuParsers.Enums;
@@ -78,9 +79,8 @@ namespace osu_rx
             Console.Clear();
             Console.WriteLine("---Settings---\n");
             Console.WriteLine("1. Relax settings");
-            Console.WriteLine("2. HitScan settings");
-            Console.WriteLine("3. Other settings\n");
-            Console.WriteLine("4. Experimental settings");
+            Console.WriteLine("2. Other settings\n");
+            Console.WriteLine("3. Experimental settings");
 
             Console.WriteLine("\nESC. Back to main menu");
 
@@ -90,12 +90,9 @@ namespace osu_rx
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D2:
-                    DrawHitScanSettings();
-                    break;
-                case ConsoleKey.D3:
                     DrawOtherSettings();
                     break;
-                case ConsoleKey.D4:
+                case ConsoleKey.D3:
                     DrawExperimentalSettings();
                     break;
                 case ConsoleKey.Escape:
@@ -113,15 +110,18 @@ namespace osu_rx
             Console.WriteLine("---Relax Settings---\n");
             Console.WriteLine($"1. Relax                  | [{(configManager.EnableRelax ? "ENABLED" : "DISABLED")}]");
             Console.WriteLine($"2. Playstyle              | [{configManager.PlayStyle}]");
-            Console.WriteLine($"3. Primary key            | [{configManager.PrimaryKey}]");
-            Console.WriteLine($"4. Secondary key          | [{configManager.SecondaryKey}]");
+            Console.WriteLine($"3. Primary key            | [{configManager.PrimaryKey.GetDescription()}]");
+            Console.WriteLine($"4. Secondary key          | [{configManager.SecondaryKey.GetDescription()}]");
             Console.WriteLine($"5. Hit window 100 key     | [{configManager.HitWindow100Key}]");
             Console.WriteLine($"6. Max singletap BPM      | [{configManager.MaxSingletapBPM}]");
             Console.WriteLine($"7. Audio offset           | [{configManager.AudioOffset}]");
             Console.WriteLine($"8. HoldBeforeSpinner time | [{configManager.HoldBeforeSpinnerTime}]");
 
+            Console.WriteLine($"\n9. Hitscan settings");
+
             Console.WriteLine("\nESC. Back to settings");
 
+            OsuKeys[] osuKeys = (OsuKeys[])Enum.GetValues(typeof(OsuKeys));
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.D1:
@@ -142,14 +142,24 @@ namespace osu_rx
                     break;
                 case ConsoleKey.D3:
                     Console.Clear();
-                    Console.Write("Enter new primary key: ");
-                    configManager.PrimaryKey = (VirtualKeyCode)Console.ReadKey(true).Key;
+                    Console.WriteLine("Enter new primary key:\n");
+                    for (int i = 0; i < osuKeys.Length; i++)
+                        Console.WriteLine($"{i + 1}. {osuKeys[i].GetDescription()}");
+                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int primaryKey) && primaryKey > 0 && primaryKey < 3)
+                        configManager.PrimaryKey = (OsuKeys)primaryKey - 1;
+                    else
+                        goto case ConsoleKey.D3;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D4:
                     Console.Clear();
-                    Console.Write("Enter new secondary key: ");
-                    configManager.SecondaryKey = (VirtualKeyCode)Console.ReadKey(true).Key;
+                    Console.WriteLine("Enter new secondary key:\n");
+                    for (int i = 0; i < osuKeys.Length; i++)
+                        Console.WriteLine($"{i + 1}. {osuKeys[i].GetDescription()}");
+                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int secondaryKey) && secondaryKey > 0 && secondaryKey < 3)
+                        configManager.SecondaryKey = (OsuKeys)secondaryKey - 1;
+                    else
+                        goto case ConsoleKey.D4;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D5:
@@ -185,6 +195,9 @@ namespace osu_rx
                         goto case ConsoleKey.D8;
                     DrawRelaxSettings();
                     break;
+                case ConsoleKey.D9:
+                    DrawHitScanSettings();
+                    break;
                 case ConsoleKey.Escape:
                     DrawSettings();
                     break;
@@ -206,7 +219,7 @@ namespace osu_rx
             Console.WriteLine($"6. Miss chance            | [{configManager.HitScanMissChance}%]");
             Console.WriteLine($"7. Miss after HitWindow50 | [{(configManager.HitScanMissAfterHitWindow50 ? "ENABLED" : "DISABLED")}]");
 
-            Console.WriteLine("\nESC. Back to settings");
+            Console.WriteLine("\nESC. Back to relax settings");
 
             switch (Console.ReadKey(true).Key)
             {
@@ -259,7 +272,7 @@ namespace osu_rx
                     DrawHitScanSettings();
                     break;
                 case ConsoleKey.Escape:
-                    DrawSettings();
+                    DrawRelaxSettings();
                     break;
                 default:
                     DrawHitScanSettings();

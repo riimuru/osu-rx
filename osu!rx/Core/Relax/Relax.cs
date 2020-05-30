@@ -2,6 +2,7 @@
 using osu_rx.Core.Relax.Accuracy;
 using osu_rx.Dependencies;
 using osu_rx.osu;
+using osu_rx.osu.Memory.Bindings;
 using OsuParsers.Beatmaps;
 using OsuParsers.Beatmaps.Objects;
 using OsuParsers.Enums;
@@ -23,6 +24,9 @@ namespace osu_rx.Core.Relax
 
         private int hitWindow50;
 
+        private VirtualKeyCode leftClick;
+        private VirtualKeyCode rightClick;
+
         public Relax()
         {
             osuManager = DependencyContainer.Get<OsuManager>();
@@ -38,12 +42,15 @@ namespace osu_rx.Core.Relax
 
             hitWindow50 = osuManager.HitWindow50(currentBeatmap.DifficultySection.OverallDifficulty);
 
+            leftClick = osuManager.BindingManager.GetKey(Bindings.OsuLeft);
+            rightClick = osuManager.BindingManager.GetKey(Bindings.OsuRight);
+
             float audioRate = osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.DoubleTime) ? 1.5f : osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75f : 1f;
             float maxBPM = configManager.MaxSingletapBPM / (audioRate / 2);
 
             int index, hitTime = 0;
             bool isHit, shouldStartAlternating, shouldAlternate;
-            VirtualKeyCode currentKey;
+            OsuKeys currentKey;
             HitObject currentHitObject;
             HitObjectTimings currentHitTimings;
 
@@ -91,7 +98,7 @@ namespace osu_rx.Core.Relax
                                             currentKey = configManager.PrimaryKey;
                                             break;
                                         default:
-                                            inputSimulator.Keyboard.KeyDown(currentKey);
+                                            inputSimulator.Keyboard.KeyDown(currentKey == OsuKeys.K1M1 ? leftClick : rightClick);
                                             break;
                                     }
                                 }
@@ -183,8 +190,8 @@ namespace osu_rx.Core.Relax
 
         private void releaseAllKeys()
         {
-            inputSimulator.Keyboard.KeyUp(configManager.PrimaryKey);
-            inputSimulator.Keyboard.KeyUp(configManager.SecondaryKey);
+            inputSimulator.Keyboard.KeyUp(leftClick);
+            inputSimulator.Keyboard.KeyUp(rightClick);
             inputSimulator.Mouse.LeftButtonUp();
             inputSimulator.Mouse.RightButtonUp();
         }
