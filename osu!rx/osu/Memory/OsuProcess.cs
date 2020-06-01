@@ -46,7 +46,7 @@ namespace osu_rx.osu.Memory
                     continue;
 
                 byte[] buffer = ReadMemory(region.BaseAddress, region.RegionSize.ToUInt32());
-                if (findMatch(patternBytes, buffer) is var match && match != UIntPtr.Zero)
+                if (findMatch(patternBytes, buffer, out UIntPtr match))
                 {
                     result = (UIntPtr)(region.BaseAddress.ToUInt32() + match.ToUInt32());
                     return true;
@@ -130,26 +130,26 @@ namespace osu_rx.osu.Memory
             return patternBytes;
         }
 
-        private UIntPtr findMatch(byte?[] pattern, byte[] buffer)
+        private bool findMatch(byte?[] pattern, byte[] buffer, out UIntPtr result)
         {
-            bool found;
+            result = UIntPtr.Zero;
+
             for (int i = 0; i + pattern.Length <= buffer.Length; i++)
             {
-                found = true;
                 for (int j = 0; j < pattern.Length; j++)
                 {
-                    if (pattern[j] == null || pattern[j] == buffer[i + j])
-                        continue;
+                    if (pattern[j] != null && pattern[j] != buffer[i + j])
+                        break;
 
-                    found = false;
-                    break;
+                    if (j == pattern.Length - 1)
+                    {
+                        result = (UIntPtr)i;
+                        return true;
+                    }
                 }
-
-                if (found)
-                    return (UIntPtr)i;
             }
 
-            return UIntPtr.Zero;
+            return false;
         }
     }
 
