@@ -112,16 +112,17 @@ namespace osu_rx
         {
             Console.Clear();
             Console.WriteLine("---Relax Settings---\n");
-            Console.WriteLine($"1. Relax                  | [{(configManager.EnableRelax ? "ENABLED" : "DISABLED")}]");
-            Console.WriteLine($"2. Playstyle              | [{configManager.PlayStyle}]");
-            Console.WriteLine($"3. Primary key            | [{configManager.PrimaryKey}]");
-            Console.WriteLine($"4. Secondary key          | [{configManager.SecondaryKey}]");
-            Console.WriteLine($"5. Hit window 100 key     | [{configManager.HitWindow100Key}]");
-            Console.WriteLine($"6. Max singletap BPM      | [{configManager.MaxSingletapBPM}]");
-            Console.WriteLine($"7. Audio offset           | [{configManager.AudioOffset}]");
-            Console.WriteLine($"8. HoldBeforeSpinner time | [{configManager.HoldBeforeSpinnerTime}]");
+            Console.WriteLine($"1. Relax                    | [{(configManager.EnableRelax ? "ENABLED" : "DISABLED")}]");
+            Console.WriteLine($"2. Playstyle                | [{configManager.PlayStyle}]");
+            Console.WriteLine($"3. Primary key              | [{configManager.PrimaryKey}]");
+            Console.WriteLine($"4. Secondary key            | [{configManager.SecondaryKey}]");
+            Console.WriteLine($"5. Hit window 100 key       | [{configManager.HitWindow100Key}]");
+            Console.WriteLine($"6. Max singletap BPM        | [{configManager.MaxSingletapBPM}]");
+            Console.WriteLine($"7. AlternateIfLessThan      | [{configManager.AlternateIfLessThan}]");
+            Console.WriteLine($"8. Audio offset             | [{configManager.AudioOffset}]");
+            Console.WriteLine($"9. HoldBeforeSpinner time   | [{configManager.HoldBeforeSpinnerTime}]");
 
-            Console.WriteLine($"\n9. Hitscan settings");
+            Console.WriteLine($"\n0. Hitscan settings");
 
             Console.WriteLine("\nESC. Back to settings");
 
@@ -176,30 +177,45 @@ namespace osu_rx
                     Console.Clear();
                     Console.Write("Enter new max singletap BPM: ");
                     if (int.TryParse(Console.ReadLine(), out int bpm))
+                    {
                         configManager.MaxSingletapBPM = bpm;
+                        configManager.AlternateIfLessThan = 60000 / bpm;
+                    }
                     else
                         goto case ConsoleKey.D6;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D7:
                     Console.Clear();
-                    Console.Write("Enter new audio offset: ");
-                    if (int.TryParse(Console.ReadLine(), out int offset))
-                        configManager.AudioOffset = offset;
+                    Console.Write("Enter new AlternateIfLessThan: ");
+                    if (int.TryParse(Console.ReadLine(), out int alternateIfLessThan))
+                    {
+                        configManager.AlternateIfLessThan = alternateIfLessThan;
+                        configManager.MaxSingletapBPM = 60000 / alternateIfLessThan;
+                    }
                     else
                         goto case ConsoleKey.D7;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D8:
                     Console.Clear();
-                    Console.Write("Enter new HoldBeforeSpinner time: ");
-                    if (int.TryParse(Console.ReadLine(), out int holdBeforeSpinnerTime))
-                        configManager.HoldBeforeSpinnerTime = holdBeforeSpinnerTime;
+                    Console.Write("Enter new audio offset: ");
+                    if (int.TryParse(Console.ReadLine(), out int offset))
+                        configManager.AudioOffset = offset;
                     else
                         goto case ConsoleKey.D8;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D9:
+                    Console.Clear();
+                    Console.Write("Enter new HoldBeforeSpinner time: ");
+                    if (int.TryParse(Console.ReadLine(), out int holdBeforeSpinnerTime))
+                        configManager.HoldBeforeSpinnerTime = holdBeforeSpinnerTime;
+                    else
+                        goto case ConsoleKey.D9;
+                    DrawRelaxSettings();
+                    break;
+                case ConsoleKey.D0:
                     DrawHitScanSettings();
                     break;
                 case ConsoleKey.Escape:

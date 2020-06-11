@@ -43,6 +43,12 @@ namespace osu_rx.Configuration
             set => config.SetValue<int>("RelaxMaxSingletapBPM", value);
         }
 
+        public int AlternateIfLessThan
+        {
+            get => config.GetValue<int>("AlternateIfLessThan", 60000 / MaxSingletapBPM);
+            set => config.SetValue<int>("AlternateIfLessThan", value);
+        }
+
         public int AudioOffset
         {
             get => config.GetValue<int>("RelaxAudioOffset", 0);

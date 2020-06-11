@@ -154,16 +154,16 @@ namespace osu_rx.Core.Relax
             var result = AlternateResult.None;
 
             float audioRate = osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.DoubleTime) ? 1.5f : osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75f : 1f;
-            float maxBPM = configManager.MaxSingletapBPM / (audioRate / 2);
+            float maxDiff = configManager.AlternateIfLessThan / audioRate;
 
             var currentHitObject = beatmap.HitObjects[index];
             var lastHitObject = index > 0 ? beatmap.HitObjects[index - 1] : null;
             var nextHitObject = index + 1 < beatmap.HitObjects.Count ? beatmap.HitObjects[index + 1] : null;
 
-            if (lastHitObject != null && 60000 / (currentHitObject.StartTime - lastHitObject.EndTime) >= maxBPM)
+            if (lastHitObject != null && (currentHitObject.StartTime - lastHitObject.EndTime) >= maxDiff)
                 result += (int)AlternateResult.AlternateThisNote;
 
-            if (nextHitObject != null && 60000 / (nextHitObject.StartTime - currentHitObject.EndTime) >= maxBPM)
+            if (nextHitObject != null && (nextHitObject.StartTime - currentHitObject.EndTime) >= maxDiff)
                 result += (int)AlternateResult.AlternateNextNote;
 
             return result;
