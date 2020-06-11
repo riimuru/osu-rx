@@ -1,4 +1,4 @@
-﻿namespace osu_rx.osu.Memory.Objects.Bindings
+﻿namespace osu.Memory.Objects.Bindings
 {
     public enum Bindings
     {

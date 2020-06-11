@@ -1,20 +1,21 @@
-﻿using osu_rx.Dependencies;
-using osu_rx.osu.Memory;
-using osu_rx.osu.Memory.Objects;
-using osu_rx.osu.Memory.Objects.Bindings;
-using osu_rx.osu.Memory.Objects.Player;
-using osu_rx.osu.Memory.Objects.Window;
-using OsuParsers.Enums;
+﻿using osu.Enums;
+using osu.Memory;
+using osu.Memory.Objects.Bindings;
+using osu.Memory.Objects.Player;
+using osu.Memory.Objects.Window;
+using SimpleDependencyInjection;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
 
-namespace osu_rx.osu
+namespace osu
 {
     public class OsuManager
     {
+        public string DebugInfo { get; private set; }
+
         public OsuProcess OsuProcess { get; private set; }
 
         public OsuWindowManager WindowManager { get; private set; }
@@ -23,17 +24,15 @@ namespace osu_rx.osu
 
         public OsuPlayer Player { get; private set; }
 
-        public bool LoadedSuccessfully { get; private set; } = true;
-
         public int CurrentTime => OsuProcess.ReadInt32(timeAddress);
 
         public bool IsPaused => !OsuProcess.ReadBool(timeAddress + Signatures.IsAudioPlayingOffset);
 
-        public OsuStates CurrentState => (OsuStates)OsuProcess.ReadInt32(stateAddress);
+        public OsuModes CurrentMode => (OsuModes)OsuProcess.ReadInt32(modeAddress);
 
         public Vector2 CursorPosition => Player.Ruleset.MousePosition - WindowManager.PlayfieldPosition;
 
-        public bool CanPlay => CurrentState == OsuStates.Play && Player.IsLoaded && !Player.ReplayMode;
+        public bool CanPlay => CurrentMode == OsuModes.Play && Player.IsLoaded && !Player.ReplayMode;
 
         public float HitObjectScalingFactor(float circleSize) => 1f - 0.7f * (float)AdjustDifficulty(circleSize);
 
@@ -77,68 +76,66 @@ namespace osu_rx.osu
             Console.WriteLine("Initializing...");
 
             var osuProcess = Process.GetProcessesByName("osu!").FirstOrDefault();
-
             if (osuProcess == default)
             {
-                Console.WriteLine("\nosu! process not found! Please launch osu! first!");
-                return false;
+                Console.WriteLine("\nWaiting for osu!...");
+
+                while (osuProcess == default)
+                {
+                    osuProcess = Process.GetProcessesByName("osu!").FirstOrDefault();
+                    Thread.Sleep(500);
+                }
             }
 
             osuProcess.EnableRaisingEvents = true;
             osuProcess.Exited += (o, e) => Environment.Exit(0);
+
             OsuProcess = new OsuProcess(osuProcess);
             DependencyContainer.Cache(OsuProcess);
 
-            scanMemory();
-
-            return true;
+            return scanMemory();
         }
 
         private UIntPtr timeAddress;
-        private UIntPtr stateAddress;
-        private void scanMemory()
+        private UIntPtr modeAddress;
+        private bool scanMemory()
         {
-            bool timeResult = false, stateResult = false, viewportResult = false, bindingManagerResult = false, playerResult = false;
-
+            bool timeResult = false, modeResult = false, viewportResult = false, bindingManagerResult = false, playerResult = false;
             try
             {
                 Console.WriteLine("\nScanning for memory addresses (this may take a while)...");
 
                 timeResult = OsuProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr timePointer);
-                stateResult = OsuProcess.FindPattern(Signatures.State.Pattern, out UIntPtr statePointer);
+                modeResult = OsuProcess.FindPattern(Signatures.Mode.Pattern, out UIntPtr modePointer);
                 viewportResult = OsuProcess.FindPattern(Signatures.Viewport.Pattern, out UIntPtr viewportPointer);
                 bindingManagerResult = OsuProcess.FindPattern(Signatures.BindingManager.Pattern, out UIntPtr bindingManagerPointer);
                 playerResult = OsuProcess.FindPattern(Signatures.Player.Pattern, out UIntPtr playerPointer);
 
-                if (timeResult && stateResult && viewportResult && bindingManagerResult && playerResult)
+                if (timeResult && modeResult && viewportResult && bindingManagerResult && playerResult)
                 {
                     timeAddress = (UIntPtr)OsuProcess.ReadUInt32(timePointer + Signatures.Time.Offset);
-                    stateAddress = (UIntPtr)OsuProcess.ReadUInt32(statePointer + Signatures.State.Offset);
+                    modeAddress = (UIntPtr)OsuProcess.ReadUInt32(modePointer + Signatures.Mode.Offset);
                     WindowManager = new OsuWindowManager((UIntPtr)OsuProcess.ReadUInt32(viewportPointer + Signatures.Viewport.Offset));
                     BindingManager = new BindingManager((UIntPtr)OsuProcess.ReadUInt32(bindingManagerPointer + Signatures.BindingManager.Offset));
                     Player = new OsuPlayer((UIntPtr)OsuProcess.ReadUInt32(playerPointer + Signatures.Player.Offset));
                 }
             }
-            catch { }
-            finally
+            catch
             {
-                if (timeAddress == UIntPtr.Zero || stateAddress == UIntPtr.Zero || WindowManager == null || BindingManager == null || Player == null)
-                {
-                    Console.Clear();
-                    Console.WriteLine("osu!rx failed to initialize:\n");
-                    Console.WriteLine("Memory scanning failed! Please report this on GitHub/MPGH.");
-                    Console.WriteLine("Please include as much info as possible (OS version, hack version, build source, debug info, etc.).");
-                    Console.WriteLine($"\n\nDebug Info:\n");
-                    Console.WriteLine($"Time result: {(timeResult ? "success" : "fail")}");
-                    Console.WriteLine($"State result: {(stateResult ? "success" : "fail")}");
-                    Console.WriteLine($"Viewport result: {(viewportResult ? "success" : "fail")}");
-                    Console.WriteLine($"BindingManager result: {(bindingManagerResult ? "success" : "fail")}");
-                    Console.WriteLine($"Player result: {(playerResult ? "success" : "fail")}");
-
-                    while (true)
-                        Thread.Sleep(1000);
-                }
             }
+
+            if (timeAddress == UIntPtr.Zero || modeAddress == UIntPtr.Zero || WindowManager == null || BindingManager == null || Player == null)
+            {
+                DebugInfo = $"Time result: {(timeResult ? "success" : "fail")}\n" +
+                    $"Mode result: {(modeResult ? "success" : "fail")}\n" +
+                    $"Viewport result: {(viewportResult ? "success" : "fail")}\n" +
+                    $"BindingManager result: {(bindingManagerResult ? "success" : "fail")}\n" +
+                    $"Player result: {(playerResult ? "success" : "fail")}";
+
+                return false;
+            }
+
+            return true;
         }
     }
 }

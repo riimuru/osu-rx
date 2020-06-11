@@ -1,4 +1,4 @@
-﻿namespace osu_rx.osu.Memory
+﻿namespace osu.Memory
 {
     public static class Signatures
     {
@@ -10,7 +10,7 @@
 
         public const int IsAudioPlayingOffset = 0x30;
 
-        public static readonly Signature State = new Signature
+        public static readonly Signature Mode = new Signature
         {
             Pattern = "8D 45 BC 89 46 0C 83 3D",
             Offset = 0x8
@@ -32,16 +32,6 @@
         {
             Pattern = "FF 50 0C 8B D8 8B 15",
             Offset = 0x7
-        };
-
-        //TODO: i couldn't create signature for this one :(
-        public static readonly int[] AudioRateOffsets = new int[]
-        {
-            0x00034268,
-            0x8,
-            0x10,
-            0xC,
-            0x40
         };
     }
 }

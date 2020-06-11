@@ -1,11 +1,11 @@
-﻿using osu_rx.Configuration;
+﻿using osu;
+using osu.Enums;
+using osu.Memory.Objects.Bindings;
+using osu.Memory.Objects.Player.Beatmaps;
+using osu.Memory.Objects.Player.Beatmaps.Objects;
+using osu_rx.Configuration;
 using osu_rx.Core.Relax.Accuracy;
-using osu_rx.Dependencies;
-using osu_rx.osu;
-using osu_rx.osu.Memory.Objects.Bindings;
-using OsuParsers.Beatmaps;
-using OsuParsers.Beatmaps.Objects;
-using OsuParsers.Enums;
+using SimpleDependencyInjection;
 using System.Threading;
 using WindowsInput;
 using WindowsInput.Native;
@@ -19,7 +19,6 @@ namespace osu_rx.Core.Relax
         private InputSimulator inputSimulator;
         private AccuracyManager accuracyManager;
 
-        private Beatmap currentBeatmap;
         private bool shouldStop;
 
         private int hitWindow50;
@@ -35,15 +34,14 @@ namespace osu_rx.Core.Relax
             accuracyManager = new AccuracyManager();
         }
 
-        public void Start(Beatmap beatmap)
+        public void Start(OsuBeatmap beatmap)
         {
             shouldStop = false;
-            currentBeatmap = postProcessBeatmap(beatmap);
 
-            hitWindow50 = osuManager.HitWindow50(currentBeatmap.DifficultySection.OverallDifficulty);
+            hitWindow50 = osuManager.HitWindow50(beatmap.OverallDifficulty);
 
-            leftClick = osuManager.BindingManager.GetKey(Bindings.OsuLeft);
-            rightClick = osuManager.BindingManager.GetKey(Bindings.OsuRight);
+            leftClick = (VirtualKeyCode)osuManager.BindingManager.GetKeyCode(Bindings.OsuLeft);
+            rightClick = (VirtualKeyCode)osuManager.BindingManager.GetKeyCode(Bindings.OsuRight);
 
             float audioRate = osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.DoubleTime) ? 1.5f : osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75f : 1f;
             float maxBPM = configManager.MaxSingletapBPM / (audioRate / 2);
@@ -51,12 +49,12 @@ namespace osu_rx.Core.Relax
             int index, hitTime = 0;
             bool isHit, shouldStartAlternating, shouldAlternate;
             OsuKeys currentKey;
-            HitObject currentHitObject;
+            OsuHitObject currentHitObject;
             HitObjectTimings currentHitTimings;
 
             reset();
 
-            while (osuManager.CanPlay && index < currentBeatmap.HitObjects.Count && !shouldStop)
+            while (osuManager.CanPlay && index < beatmap.HitObjects.Count && !shouldStop)
             {
                 Thread.Sleep(1);
 
@@ -108,11 +106,11 @@ namespace osu_rx.Core.Relax
                                 break;
                         }
                     }
-                    else if (currentTime >= (currentHitObject is HitCircle ? hitTime : currentHitObject.EndTime) + currentHitTimings.HoldTime)
+                    else if (currentTime >= (currentHitObject is OsuHitCircle ? hitTime : currentHitObject.EndTime) + currentHitTimings.HoldTime)
                     {
                         moveToNextObject();
 
-                        if (currentHitObject is Spinner && currentHitObject.StartTime - currentBeatmap.HitObjects[index - 1].EndTime <= configManager.HoldBeforeSpinnerTime)
+                        if (currentHitObject is OsuSpinner && currentHitObject.StartTime - beatmap.HitObjects[index - 1].EndTime <= configManager.HoldBeforeSpinnerTime)
                             continue;
 
                         isHit = false;
@@ -123,24 +121,24 @@ namespace osu_rx.Core.Relax
 
             releaseAllKeys();
 
-            while (osuManager.CanPlay && index >= currentBeatmap.HitObjects.Count && !shouldStop)
+            while (osuManager.CanPlay && index >= beatmap.HitObjects.Count && !shouldStop)
                 Thread.Sleep(5);
 
             void reset()
             {
-                accuracyManager.Reset(currentBeatmap);
-                index = closestHitObjectIndex;
+                accuracyManager.Reset(beatmap);
+                index = osuManager.Player.HitObjectManager.CurrentHitObjectIndex;
                 isHit = false;
                 currentKey = configManager.PrimaryKey;
-                currentHitObject = currentBeatmap.HitObjects[index];
+                currentHitObject = beatmap.HitObjects[index];
                 updateAlternate();
                 currentHitTimings = accuracyManager.GetHitObjectTimings(index, shouldAlternate, false);
             }
 
             void updateAlternate()
             {
-                var lastHitObject = index > 0 ? currentBeatmap.HitObjects[index - 1] : null;
-                var nextHitObject = index + 1 < currentBeatmap.HitObjects.Count ? currentBeatmap.HitObjects[index + 1] : null;
+                var lastHitObject = index > 0 ? beatmap.HitObjects[index - 1] : null;
+                var nextHitObject = index + 1 < beatmap.HitObjects.Count ? beatmap.HitObjects[index + 1] : null;
 
                 shouldStartAlternating = nextHitObject != null ? 60000 / (nextHitObject.StartTime - currentHitObject.EndTime) >= maxBPM : false;
                 shouldAlternate = lastHitObject != null ? 60000 / (currentHitObject.StartTime - lastHitObject.EndTime) >= maxBPM : false;
@@ -153,9 +151,9 @@ namespace osu_rx.Core.Relax
             void moveToNextObject()
             {
                 index++;
-                if (index < currentBeatmap.HitObjects.Count)
+                if (index < beatmap.HitObjects.Count)
                 {
-                    currentHitObject = currentBeatmap.HitObjects[index];
+                    currentHitObject = beatmap.HitObjects[index];
 
                     updateAlternate();
                     currentHitTimings = accuracyManager.GetHitObjectTimings(index, shouldAlternate, inputSimulator.InputDeviceState.IsKeyDown(configManager.HitWindow100Key));
@@ -164,29 +162,6 @@ namespace osu_rx.Core.Relax
         }
 
         public void Stop() => shouldStop = true;
-
-        private Beatmap postProcessBeatmap(Beatmap beatmap)
-        {
-            foreach (var hitObject in beatmap.HitObjects)
-                if (hitObject is Slider slider)
-                    for (int i = 0; i < slider.SliderPoints.Count; i++)
-                        slider.SliderPoints[i] -= slider.Position;
-
-            return beatmap;
-        }
-
-        private int closestHitObjectIndex
-        {
-            get
-            {
-                int time = osuManager.CurrentTime;
-                for (int i = 0; i < currentBeatmap.HitObjects.Count; i++)
-                    if (currentBeatmap.HitObjects[i].StartTime >= time)
-                        return i;
-
-                return currentBeatmap.HitObjects.Count;
-            }
-        }
 
         private void releaseAllKeys()
         {

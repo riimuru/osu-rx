@@ -1,4 +1,4 @@
-﻿namespace osu_rx.osu.Memory
+﻿namespace osu.Memory
 {
     public class Signature
     {

@@ -33,8 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OsuParsers, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsuParsers.1.6.5\lib\netstandard2.0\OsuParsers.dll</HintPath>
+    <Reference Include="SimpleDependencyInjection, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleDependencyInjection.1.0.0\lib\netstandard2.0\SimpleDependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="SimpleIniConfig, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SimpleIniConfig.1.0.1\lib\netstandard2.0\SimpleIniConfig.dll</HintPath>
@@ -63,32 +63,21 @@
     <Compile Include="Core\Relax\Accuracy\AccuracyManager.cs" />
     <Compile Include="Core\Relax\Accuracy\HitObjectTimings.cs" />
     <Compile Include="Core\Relax\Accuracy\HitScanResult.cs" />
-    <Compile Include="Core\Relax\Objects\SliderPath.cs" />
     <Compile Include="Core\Relax\Relax.cs" />
     <Compile Include="Core\Timewarp\Timewarp.cs" />
-    <Compile Include="Dependencies\DependencyContainer.cs" />
-    <Compile Include="Helpers\CurveHelper.cs" />
-    <Compile Include="osu\Memory\Objects\Bindings\BindingManager.cs" />
-    <Compile Include="osu\Memory\Objects\Bindings\Bindings.cs" />
-    <Compile Include="osu\Memory\Objects\Player\OsuHitObjectManager.cs" />
-    <Compile Include="osu\Memory\Objects\Player\OsuPlayer.cs" />
-    <Compile Include="osu\Memory\Objects\Player\OsuRuleset.cs" />
-    <Compile Include="osu\Memory\Objects\Window\OsuViewport.cs" />
-    <Compile Include="osu\Memory\Objects\Window\OsuWindowManager.cs" />
-    <Compile Include="osu\Memory\Signature.cs" />
-    <Compile Include="osu\Memory\Signatures.cs" />
-    <Compile Include="Helpers\CryptoHelper.cs" />
     <Compile Include="Helpers\Extensions.cs" />
-    <Compile Include="osu\Memory\Objects\OsuObject.cs" />
-    <Compile Include="osu\OsuManager.cs" />
-    <Compile Include="osu\Memory\OsuProcess.cs" />
-    <Compile Include="osu\Memory\Objects\OsuStates.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OsuManager\OsuManager.csproj">
+      <Project>{7c8ee0c1-1f70-4584-a742-8d1811fac198}</Project>
+      <Name>OsuManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

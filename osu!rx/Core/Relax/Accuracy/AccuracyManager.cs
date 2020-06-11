@@ -1,10 +1,9 @@
-﻿using osu_rx.Configuration;
-using osu_rx.Core.Relax.Objects;
-using osu_rx.Dependencies;
+﻿using osu;
+using osu.Memory.Objects.Player.Beatmaps;
+using osu.Memory.Objects.Player.Beatmaps.Objects;
+using osu_rx.Configuration;
 using osu_rx.Helpers;
-using osu_rx.osu;
-using OsuParsers.Beatmaps;
-using OsuParsers.Beatmaps.Objects;
+using SimpleDependencyInjection;
 using System;
 using System.Numerics;
 
@@ -15,7 +14,7 @@ namespace osu_rx.Core.Relax.Accuracy
         private OsuManager osuManager;
         private ConfigManager configManager;
 
-        private Beatmap currentBeatmap;
+        private OsuBeatmap beatmap;
 
         private int hitWindow50;
         private int hitWindow100;
@@ -23,7 +22,6 @@ namespace osu_rx.Core.Relax.Accuracy
 
         private int lastHitScanIndex;
         private Vector2? lastOnNotePosition;
-        private SliderPath lastSliderPath;
 
         private Random random = new Random();
 
@@ -33,38 +31,34 @@ namespace osu_rx.Core.Relax.Accuracy
             configManager = DependencyContainer.Get<ConfigManager>();
         }
 
-        public void Reset(Beatmap beatmap)
+        public void Reset(OsuBeatmap beatmap)
         {
-            currentBeatmap = beatmap;
+            this.beatmap = beatmap;
 
-            hitWindow50 = osuManager.HitWindow50(currentBeatmap.DifficultySection.OverallDifficulty);
-            hitWindow100 = osuManager.HitWindow100(currentBeatmap.DifficultySection.OverallDifficulty);
-            hitWindow300 = osuManager.HitWindow300(currentBeatmap.DifficultySection.OverallDifficulty);
+            hitWindow50 = osuManager.HitWindow50(beatmap.OverallDifficulty);
+            hitWindow100 = osuManager.HitWindow100(beatmap.OverallDifficulty);
+            hitWindow300 = osuManager.HitWindow300(beatmap.OverallDifficulty);
 
             lastHitScanIndex = -1;
             lastOnNotePosition = null;
-            lastSliderPath = null;
         }
 
         public HitScanResult GetHitScanResult(int index)
         {
-            var hitObject = currentBeatmap.HitObjects[index];
+            var hitObject = beatmap.HitObjects[index];
 
-            if (!configManager.EnableHitScan || hitObject is Spinner)
+            if (!configManager.EnableHitScan || hitObject is OsuSpinner)
                 return HitScanResult.CanHit;
 
             if (lastHitScanIndex != index)
             {
                 lastHitScanIndex = index;
                 lastOnNotePosition = null;
-                lastSliderPath = hitObject is Slider slider ? new SliderPath(slider) : null;
             }
 
-            float hitObjectRadius = osuManager.HitObjectRadius(currentBeatmap.DifficultySection.CircleSize);
+            float hitObjectRadius = osuManager.HitObjectRadius(beatmap.CircleSize);
 
-            Vector2 hitObjectPosition = hitObject.Position;
-            if (hitObject is Slider && osuManager.CurrentTime > hitObject.StartTime)
-                hitObjectPosition += lastSliderPath.PositionAtTime(osuManager.CurrentTime);
+            Vector2 hitObjectPosition = hitObject is OsuSlider ? (hitObject as OsuSlider).PositionAtTime(osuManager.CurrentTime) : hitObject.Position;
 
             float distanceToObject = Vector2.Distance(osuManager.CursorPosition, hitObjectPosition * osuManager.WindowManager.PlayfieldRatio);
             float distanceToLastPos = Vector2.Distance(osuManager.CursorPosition, lastOnNotePosition ?? Vector2.Zero);
@@ -110,9 +104,9 @@ namespace osu_rx.Core.Relax.Accuracy
             else
                 result.StartOffset = random.Next((int)(-hitWindow300 / acc), (int)(hitWindow300 / acc));
 
-            if (currentBeatmap.HitObjects[index] is Slider)
+            if (beatmap.HitObjects[index] is OsuSlider)
             {
-                int sliderDuration = currentBeatmap.HitObjects[index].EndTime - currentBeatmap.HitObjects[index].StartTime;
+                int sliderDuration = beatmap.HitObjects[index].EndTime - beatmap.HitObjects[index].StartTime;
                 result.HoldTime = random.Next(sliderDuration >= 72 ? -26 : sliderDuration / 2 - 10, hitWindow300 * 2);
             }
             else
@@ -126,16 +120,16 @@ namespace osu_rx.Core.Relax.Accuracy
             int time = osuManager.CurrentTime;
             Vector2 cursorPosition = osuManager.CursorPosition;
 
-            for (int i = startIndex; i < currentBeatmap.HitObjects.Count; i++)
+            for (int i = startIndex; i < beatmap.HitObjects.Count; i++)
             {
-                var hitObject = currentBeatmap.HitObjects[i];
-                double preEmpt = osuManager.DifficultyRange(currentBeatmap.DifficultySection.ApproachRate, 1800, 1200, 450);
+                var hitObject = beatmap.HitObjects[i];
+                double preEmpt = osuManager.DifficultyRange(beatmap.ApproachRate, 1800, 1200, 450);
                 double startTime = hitObject.StartTime - preEmpt;
                 if (startTime > time)
                     break;
 
                 float distanceToObject = Vector2.Distance(cursorPosition, hitObject.Position * osuManager.WindowManager.PlayfieldRatio);
-                if (distanceToObject <= osuManager.HitObjectRadius(currentBeatmap.DifficultySection.CircleSize))
+                if (distanceToObject <= osuManager.HitObjectRadius(beatmap.CircleSize))
                     return true;
             }
 

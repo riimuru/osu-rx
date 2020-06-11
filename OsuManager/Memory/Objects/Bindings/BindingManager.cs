@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using WindowsInput.Native;
 
-namespace osu_rx.osu.Memory.Objects.Bindings
+namespace osu.Memory.Objects.Bindings
 {
     public class BindingManager : OsuObject
     {
-        public Dictionary<Bindings, VirtualKeyCode> BindingDictionary
+        public Dictionary<Bindings, int> BindingDictionary
         {
             get
             {
-                var bindingDictionary = new Dictionary<Bindings, VirtualKeyCode>();
+                var bindingDictionary = new Dictionary<Bindings, int>();
 
                 UIntPtr items = (UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x8);
                 int dictionaryLength = OsuProcess.ReadInt32(BaseAddress + 0x1C);
@@ -18,7 +17,7 @@ namespace osu_rx.osu.Memory.Objects.Bindings
                 {
                     UIntPtr currentItem = items + 0x8 + 0x8 * i;
                     var key = (Bindings)OsuProcess.ReadInt32(currentItem);
-                    var value = (VirtualKeyCode)OsuProcess.ReadInt32(currentItem + 0x4);
+                    var value = (int)OsuProcess.ReadInt32(currentItem + 0x4);
 
                     bindingDictionary[key] = value;
                 }
@@ -27,11 +26,11 @@ namespace osu_rx.osu.Memory.Objects.Bindings
             }
         }
 
-        public VirtualKeyCode GetKey(Bindings binding)
+        public int GetKeyCode(Bindings binding)
         {
-            VirtualKeyCode key;
+            int key;
             if (!BindingDictionary.TryGetValue(binding, out key))
-                return VirtualKeyCode.ESCAPE;
+                return int.MinValue;
 
             return key;
         }

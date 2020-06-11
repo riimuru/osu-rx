@@ -1,8 +1,7 @@
-﻿using osu_rx.Configuration;
-using osu_rx.Dependencies;
-using osu_rx.osu;
-using osu_rx.osu.Memory;
-using OsuParsers.Enums;
+﻿using osu;
+using osu.Enums;
+using osu_rx.Configuration;
+using SimpleDependencyInjection;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -12,6 +11,16 @@ namespace osu_rx.Core.Timewarp
     public class Timewarp
     {
         public bool IsRunning { get; private set; }
+
+        //TODO: i couldn't create signature for this one :(
+        private readonly int[] audioRateOffsets = new int[]
+        {
+            0x00034268,
+            0x8,
+            0x10,
+            0xC,
+            0x40
+        };
 
         private const double defaultRate = 1147;
 
@@ -56,11 +65,11 @@ namespace osu_rx.Core.Timewarp
                 }
             }
 
-            for (int i = 0; i < Signatures.AudioRateOffsets.Length; i++)
+            for (int i = 0; i < audioRateOffsets.Length; i++)
             {
-                audioRateAddress += Signatures.AudioRateOffsets[i];
+                audioRateAddress += audioRateOffsets[i];
 
-                if (i != Signatures.AudioRateOffsets.Length - 1)
+                if (i != audioRateOffsets.Length - 1)
                     audioRateAddress = (UIntPtr)osuManager.OsuProcess.ReadUInt32(audioRateAddress);
             }
         }

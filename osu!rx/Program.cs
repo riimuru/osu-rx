@@ -1,11 +1,10 @@
-﻿using osu_rx.Configuration;
+﻿using osu;
+using osu.Enums;
+using osu_rx.Configuration;
 using osu_rx.Core.Relax;
 using osu_rx.Core.Timewarp;
-using osu_rx.Dependencies;
 using osu_rx.Helpers;
-using osu_rx.osu;
-using OsuParsers.Beatmaps;
-using OsuParsers.Enums;
+using SimpleDependencyInjection;
 using System;
 using System.Reflection;
 using System.Threading;
@@ -28,10 +27,15 @@ namespace osu_rx
 
             if (!osuManager.Initialize())
             {
-                Console.WriteLine();
-                Console.WriteLine("osu!rx will close in 5 seconds...");
-                Thread.Sleep(5000);
-                Environment.Exit(0);
+                Console.Clear();
+                Console.WriteLine("osu!rx failed to initialize:\n");
+                Console.WriteLine("Memory scanning failed! Please report this on GitHub/MPGH.");
+                Console.WriteLine("Please include as much info as possible (OS version, hack version, build source, debug info, etc.).");
+                Console.WriteLine($"\n\nDebug Info:\n");
+                Console.WriteLine(osuManager.DebugInfo);
+
+                while (true)
+                    Thread.Sleep(1000);
             }
 
             configManager = new ConfigManager();
@@ -373,15 +377,15 @@ namespace osu_rx
                 if (shouldExit)
                     break;
 
-                Beatmap beatmap = osuManager.Player.Beatmap;
+                var beatmap = osuManager.Player.Beatmap;
 
                 Console.Clear();
-                Console.WriteLine($"Playing {beatmap.MetadataSection.Artist} - {beatmap.MetadataSection.Title} ({beatmap.MetadataSection.Creator}) [{beatmap.MetadataSection.Version}]");
+                Console.WriteLine($"Playing {beatmap.Artist} - {beatmap.Title} ({beatmap.Creator}) [{beatmap.Version}]");
                 Console.WriteLine("\nPress ESC to return to the main menu.");
 
                 var relaxTask = Task.Factory.StartNew(() =>
                 {
-                    if (configManager.EnableRelax && beatmap.GeneralSection.Mode == Ruleset.Standard)
+                    if (configManager.EnableRelax && beatmap.Ruleset == Ruleset.Standard)
                         relax.Start(beatmap);
                 });
 

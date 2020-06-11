@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using static osu_rx.osu.Memory.OsuProcess;
+using static osu.Memory.OsuProcess;
 
-namespace osu_rx.osu.Memory
+namespace osu.Memory
 {
     public class OsuProcess
     {
@@ -106,11 +106,11 @@ namespace osu_rx.osu.Memory
 
         public bool ReadBool(UIntPtr address) => BitConverter.ToBoolean(ReadMemory(address, sizeof(bool)), 0);
 
-        public string ReadString(UIntPtr address, Encoding encoding = null)
+        public string ReadString(UIntPtr address, bool multiply = false, Encoding encoding = null)
         {
             encoding = encoding ?? Encoding.UTF8;
             UIntPtr stringAddress = (UIntPtr)ReadUInt32(address);
-            int length = ReadInt32(stringAddress + 0x4) * (encoding == Encoding.UTF8 ? 2 : 1);
+            int length = ReadInt32(stringAddress + 0x4) * (multiply ? 2 : 1);
 
             return encoding.GetString(ReadMemory(stringAddress + 0x8, (uint)length)).Replace("\0", string.Empty);
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace osu_rx.osu.Memory.Objects.Window
+namespace osu.Memory.Objects.Window
 {
     public class OsuViewport : OsuObject
     {

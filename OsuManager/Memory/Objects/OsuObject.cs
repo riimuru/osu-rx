@@ -1,11 +1,11 @@
-﻿using osu_rx.Dependencies;
+﻿using SimpleDependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace osu_rx.osu.Memory.Objects
+namespace osu.Memory.Objects
 {
-    public abstract class OsuObject
+    public class OsuObject
     {
         protected OsuProcess OsuProcess;
 
@@ -56,5 +56,7 @@ namespace osu_rx.osu.Memory.Objects
             osuObject.Parent = this;
             children.Add(osuObject);
         }
+
+        public void Clear() => children.Clear();
     }
 }

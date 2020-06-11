@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace osu_rx.osu.Memory.Objects.Window
+namespace osu.Memory.Objects.Window
 {
     public class OsuWindowManager
     {

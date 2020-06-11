@@ -1,6 +1,6 @@
-﻿namespace osu_rx.osu.Memory.Objects
+﻿namespace osu.Enums
 {
-    public enum OsuStates
+    public enum OsuModes
     {
         Menu,
         Edit,
