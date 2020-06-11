@@ -75,14 +75,21 @@ namespace osu
         {
             Console.WriteLine("Initializing...");
 
-            var osuProcess = Process.GetProcessesByName("osu!").FirstOrDefault();
+            var osuProcess = Process.GetProcessesByName("osu!rewrite").FirstOrDefault();
             if (osuProcess == default)
             {
                 Console.WriteLine("\nWaiting for osu!...");
 
-                while (osuProcess == default)
+                while (true)
                 {
                     osuProcess = Process.GetProcessesByName("osu!").FirstOrDefault();
+                    if (osuProcess != default)
+                    {
+                        osuProcess.Refresh();
+                        if (osuProcess.MainWindowTitle.Contains("osu!") && !osuProcess.MainWindowTitle.Contains("updater"))
+                            break;
+                    }
+
                     Thread.Sleep(500);
                 }
             }
