@@ -1,20 +1,19 @@
-# osu-rx [![CodeFactor](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx/badge)](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx)
+# osu-rx [![CodeFactor](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx/badge?style=for-the-badge)](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx)
 osu!standard relax hack
 
 ## Status
 osu!rx is still under development. Bug reports, feature requests, pull requests and any other help or feedback are very much appreciated!
 
 Hit Timing randomization and HitScan need improvements and your feedback. Take a look at the code to get started!
-- [Hit Timings randomization](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L102)
-- [HitScan](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L49)
+- [Hit Timings randomization](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L96)
+- [HitScan](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L46)
 
 ## Features
 - **Automatic beatmap detection:** you don't need to alt-tab from osu! to select beatmap manually, osu!rx will do all the dirty work for you.
 
-- **Playstyles:** osu!rx has 4 most(?) popular built-in playstyles that you can select!
+- **Playstyles:** osu!rx has 3 most(?) popular built-in playstyles that you can select!
   - Singletap
   - Alternate
-  - Mouse only
   - TapX
   
 - **Hit Timing randomization:** osu!rx automatically randomizes click timings depending on whether you're currently alternating or not.
