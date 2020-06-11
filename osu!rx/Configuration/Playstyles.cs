@@ -4,7 +4,6 @@
     {
         Singletap,
         Alternate,
-        MouseOnly,
         TapX
     }
 }

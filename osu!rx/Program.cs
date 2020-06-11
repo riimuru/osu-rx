@@ -114,8 +114,8 @@ namespace osu_rx
             Console.WriteLine("---Relax Settings---\n");
             Console.WriteLine($"1. Relax                  | [{(configManager.EnableRelax ? "ENABLED" : "DISABLED")}]");
             Console.WriteLine($"2. Playstyle              | [{configManager.PlayStyle}]");
-            Console.WriteLine($"3. Primary key            | [{configManager.PrimaryKey.GetDescription()}]");
-            Console.WriteLine($"4. Secondary key          | [{configManager.SecondaryKey.GetDescription()}]");
+            Console.WriteLine($"3. Primary key            | [{configManager.PrimaryKey}]");
+            Console.WriteLine($"4. Secondary key          | [{configManager.SecondaryKey}]");
             Console.WriteLine($"5. Hit window 100 key     | [{configManager.HitWindow100Key}]");
             Console.WriteLine($"6. Max singletap BPM      | [{configManager.MaxSingletapBPM}]");
             Console.WriteLine($"7. Audio offset           | [{configManager.AudioOffset}]");
@@ -138,7 +138,7 @@ namespace osu_rx
                     PlayStyles[] playstyles = (PlayStyles[])Enum.GetValues(typeof(PlayStyles));
                     for (int i = 0; i < playstyles.Length; i++)
                         Console.WriteLine($"{i + 1}. {playstyles[i]}");
-                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int selected) && selected > 0 && selected < 5)
+                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int selected) && selected > 0 && selected < 4)
                         configManager.PlayStyle = (PlayStyles)selected - 1;
                     else
                         goto case ConsoleKey.D2;
@@ -148,8 +148,8 @@ namespace osu_rx
                     Console.Clear();
                     Console.WriteLine("Enter new primary key:\n");
                     for (int i = 0; i < osuKeys.Length; i++)
-                        Console.WriteLine($"{i + 1}. {osuKeys[i].GetDescription()}");
-                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int primaryKey) && primaryKey > 0 && primaryKey < 3)
+                        Console.WriteLine($"{i + 1}. {osuKeys[i]}");
+                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int primaryKey) && primaryKey > 0 && primaryKey < 5)
                         configManager.PrimaryKey = (OsuKeys)primaryKey - 1;
                     else
                         goto case ConsoleKey.D3;
@@ -159,8 +159,8 @@ namespace osu_rx
                     Console.Clear();
                     Console.WriteLine("Enter new secondary key:\n");
                     for (int i = 0; i < osuKeys.Length; i++)
-                        Console.WriteLine($"{i + 1}. {osuKeys[i].GetDescription()}");
-                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int secondaryKey) && secondaryKey > 0 && secondaryKey < 3)
+                        Console.WriteLine($"{i + 1}. {osuKeys[i]}");
+                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int secondaryKey) && secondaryKey > 0 && secondaryKey < 5)
                         configManager.SecondaryKey = (OsuKeys)secondaryKey - 1;
                     else
                         goto case ConsoleKey.D4;

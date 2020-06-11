@@ -1,13 +1,10 @@
-﻿using System.ComponentModel;
-
-namespace osu_rx.Configuration
+﻿namespace osu_rx.Configuration
 {
     public enum OsuKeys
     {
-        [Description("K1/M1")]
-        K1M1,
-
-        [Description("K2/M2")]
-        K2M2
+        K1,
+        K2,
+        M1,
+        M2
     }
 }

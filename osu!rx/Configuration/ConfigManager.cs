@@ -3,7 +3,7 @@ using WindowsInput.Native;
 
 namespace osu_rx.Configuration
 {
-    public class ConfigManager
+    public class ConfigManager //TODO: config migration on v1.2.0
     {
         private Config config;
 
@@ -21,13 +21,13 @@ namespace osu_rx.Configuration
 
         public OsuKeys PrimaryKey
         {
-            get => config.GetValue<OsuKeys>("RelaxPrimaryKey", OsuKeys.K1M1);
+            get => config.GetValue<OsuKeys>("RelaxPrimaryKey", OsuKeys.K1);
             set => config.SetValue<OsuKeys>("RelaxPrimaryKey", value);
         }
 
         public OsuKeys SecondaryKey
         {
-            get => config.GetValue<OsuKeys>("RelaxSecondaryKey", OsuKeys.K2M2);
+            get => config.GetValue<OsuKeys>("RelaxSecondaryKey", OsuKeys.K2);
             set => config.SetValue<OsuKeys>("RelaxSecondaryKey", value);
         }
 

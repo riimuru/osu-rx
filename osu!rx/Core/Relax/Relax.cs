@@ -89,22 +89,17 @@ namespace osu_rx.Core.Relax
                                     isHit = true;
                                     hitTime = currentTime;
 
-                                    switch (configManager.PlayStyle)
+                                    if (configManager.PlayStyle == PlayStyles.TapX && alternateResult == AlternateResult.None)
                                     {
-                                        case PlayStyles.MouseOnly when currentKey == configManager.PrimaryKey:
-                                            inputSimulator.Mouse.LeftButtonDown();
-                                            break;
-                                        case PlayStyles.MouseOnly:
-                                            inputSimulator.Mouse.RightButtonDown();
-                                            break;
-                                        case PlayStyles.TapX when alternateResult == AlternateResult.None:
-                                            inputSimulator.Mouse.LeftButtonDown();
-                                            currentKey = configManager.PrimaryKey;
-                                            break;
-                                        default:
-                                            inputSimulator.Keyboard.KeyDown(currentKey == OsuKeys.K1M1 ? leftClick : rightClick);
-                                            break;
+                                        inputSimulator.Mouse.LeftButtonDown();
+                                        currentKey = configManager.PrimaryKey;
                                     }
+                                    else if (currentKey == OsuKeys.K1 || currentKey == OsuKeys.K2)
+                                        inputSimulator.Keyboard.KeyDown(currentKey == OsuKeys.K1 ? leftClick : rightClick);
+                                    else if (currentKey == OsuKeys.M1)
+                                        inputSimulator.Mouse.LeftButtonDown();
+                                    else
+                                        inputSimulator.Mouse.RightButtonDown();
                                 }
                                 break;
                             case HitScanResult.MoveToNextObject:
