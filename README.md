@@ -1,4 +1,4 @@
-# osu-rx [![CodeFactor](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx/badge?style=for-the-badge)](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx)
+# osu-rx [![CodeFactor](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx/badge?style=flat-square)](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx)
 osu!standard relax hack
 
 ## Status
