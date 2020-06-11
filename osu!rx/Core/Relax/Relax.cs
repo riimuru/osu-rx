@@ -19,6 +19,8 @@ namespace osu_rx.Core.Relax
         private InputSimulator inputSimulator;
         private AccuracyManager accuracyManager;
 
+        private OsuBeatmap beatmap;
+
         private bool shouldStop;
 
         private int hitWindow50;
@@ -36,6 +38,8 @@ namespace osu_rx.Core.Relax
 
         public void Start(OsuBeatmap beatmap)
         {
+            this.beatmap = beatmap;
+
             shouldStop = false;
 
             hitWindow50 = osuManager.HitWindow50(beatmap.OverallDifficulty);
@@ -43,16 +47,18 @@ namespace osu_rx.Core.Relax
             leftClick = (VirtualKeyCode)osuManager.BindingManager.GetKeyCode(Bindings.OsuLeft);
             rightClick = (VirtualKeyCode)osuManager.BindingManager.GetKeyCode(Bindings.OsuRight);
 
-            float audioRate = osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.DoubleTime) ? 1.5f : osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75f : 1f;
-            float maxBPM = configManager.MaxSingletapBPM / (audioRate / 2);
+            accuracyManager.Reset(beatmap);
 
-            int index, hitTime = 0;
-            bool isHit, shouldStartAlternating, shouldAlternate;
-            OsuKeys currentKey;
-            OsuHitObject currentHitObject;
-            HitObjectTimings currentHitTimings;
+            bool isHit = false;
+            int hitTime = 0;
 
-            reset();
+            int index = osuManager.Player.HitObjectManager.CurrentHitObjectIndex;
+            OsuHitObject currentHitObject = beatmap.HitObjects[index];
+
+            var alternateResult = AlternateResult.None;
+            OsuKeys currentKey = configManager.PrimaryKey;
+
+            HitObjectTimings currentHitTimings = accuracyManager.GetHitObjectTimings(index, false, false);
 
             while (osuManager.CanPlay && index < beatmap.HitObjects.Count && !shouldStop)
             {
@@ -91,7 +97,7 @@ namespace osu_rx.Core.Relax
                                         case PlayStyles.MouseOnly:
                                             inputSimulator.Mouse.RightButtonDown();
                                             break;
-                                        case PlayStyles.TapX when !shouldAlternate && !shouldStartAlternating:
+                                        case PlayStyles.TapX when alternateResult == AlternateResult.None:
                                             inputSimulator.Mouse.LeftButtonDown();
                                             currentKey = configManager.PrimaryKey;
                                             break;
@@ -124,44 +130,49 @@ namespace osu_rx.Core.Relax
             while (osuManager.CanPlay && index >= beatmap.HitObjects.Count && !shouldStop)
                 Thread.Sleep(5);
 
-            void reset()
-            {
-                accuracyManager.Reset(beatmap);
-                index = osuManager.Player.HitObjectManager.CurrentHitObjectIndex;
-                isHit = false;
-                currentKey = configManager.PrimaryKey;
-                currentHitObject = beatmap.HitObjects[index];
-                updateAlternate();
-                currentHitTimings = accuracyManager.GetHitObjectTimings(index, shouldAlternate, false);
-            }
-
-            void updateAlternate()
-            {
-                var lastHitObject = index > 0 ? beatmap.HitObjects[index - 1] : null;
-                var nextHitObject = index + 1 < beatmap.HitObjects.Count ? beatmap.HitObjects[index + 1] : null;
-
-                shouldStartAlternating = nextHitObject != null ? 60000 / (nextHitObject.StartTime - currentHitObject.EndTime) >= maxBPM : false;
-                shouldAlternate = lastHitObject != null ? 60000 / (currentHitObject.StartTime - lastHitObject.EndTime) >= maxBPM : false;
-                if (shouldAlternate || configManager.PlayStyle == PlayStyles.Alternate)
-                    currentKey = (currentKey == configManager.PrimaryKey) ? configManager.SecondaryKey : configManager.PrimaryKey;
-                else
-                    currentKey = configManager.PrimaryKey;
-            }
-
             void moveToNextObject()
             {
                 index++;
+
                 if (index < beatmap.HitObjects.Count)
                 {
                     currentHitObject = beatmap.HitObjects[index];
 
-                    updateAlternate();
-                    currentHitTimings = accuracyManager.GetHitObjectTimings(index, shouldAlternate, inputSimulator.InputDeviceState.IsKeyDown(configManager.HitWindow100Key));
+                    alternateResult = getAlternateResult(index);
+                    if (alternateResult.HasFlag(AlternateResult.AlternateThisNote))
+                        currentKey = currentKey == configManager.PrimaryKey ? configManager.SecondaryKey : configManager.PrimaryKey;
+                    else
+                        currentKey = configManager.PrimaryKey;
+
+                    currentHitTimings = accuracyManager.GetHitObjectTimings(index, alternateResult.HasFlag(AlternateResult.AlternateThisNote), inputSimulator.InputDeviceState.IsKeyDown(configManager.HitWindow100Key));
                 }
             }
         }
 
         public void Stop() => shouldStop = true;
+
+        private AlternateResult getAlternateResult(int index)
+        {
+            if (configManager.PlayStyle == PlayStyles.Alternate)
+                return AlternateResult.AlternateThisNote;
+
+            var result = AlternateResult.None;
+
+            float audioRate = osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.DoubleTime) ? 1.5f : osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.HalfTime) ? 0.75f : 1f;
+            float maxBPM = configManager.MaxSingletapBPM / (audioRate / 2);
+
+            var currentHitObject = beatmap.HitObjects[index];
+            var lastHitObject = index > 0 ? beatmap.HitObjects[index - 1] : null;
+            var nextHitObject = index + 1 < beatmap.HitObjects.Count ? beatmap.HitObjects[index + 1] : null;
+
+            if (lastHitObject != null && 60000 / (currentHitObject.StartTime - lastHitObject.EndTime) >= maxBPM)
+                result += (int)AlternateResult.AlternateThisNote;
+
+            if (nextHitObject != null && 60000 / (nextHitObject.StartTime - currentHitObject.EndTime) >= maxBPM)
+                result += (int)AlternateResult.AlternateNextNote;
+
+            return result;
+        }
 
         private void releaseAllKeys()
         {
