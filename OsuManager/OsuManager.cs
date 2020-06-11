@@ -75,7 +75,7 @@ namespace osu
         {
             Console.WriteLine("Initializing...");
 
-            var osuProcess = Process.GetProcessesByName("osu!rewrite").FirstOrDefault();
+            var osuProcess = Process.GetProcessesByName("osu!").FirstOrDefault();
             if (osuProcess == default)
             {
                 Console.WriteLine("\nWaiting for osu!...");
