@@ -386,7 +386,7 @@ namespace osu_rx
                 Console.WriteLine("Idling");
                 Console.WriteLine("\nPress ESC to return to the main menu.");
 
-                while (!osuManager.CanPlay && !shouldExit)
+                while (!osuManager.CanLoad && !shouldExit)
                     Thread.Sleep(5);
 
                 if (shouldExit)

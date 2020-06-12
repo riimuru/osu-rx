@@ -35,7 +35,9 @@ namespace osu
 
         public Vector2 CursorPosition => Player.Ruleset.MousePosition - WindowManager.PlayfieldPosition;
 
-        public bool CanPlay => CurrentMode == OsuModes.Play && Player.IsLoaded && !Player.ReplayMode;
+        public bool CanLoad => CurrentMode == OsuModes.Play && Player.IsLoaded && !Player.ReplayMode;
+
+        public bool CanPlay => CurrentMode == OsuModes.Play && Player.SingleComponentLoaded && !Player.ReplayMode;
 
         public float HitObjectScalingFactor(float circleSize) => 1f - 0.7f * (float)AdjustDifficulty(circleSize);
 
