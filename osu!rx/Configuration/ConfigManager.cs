@@ -39,14 +39,14 @@ namespace osu_rx.Configuration
 
         public int MaxSingletapBPM
         {
-            get => config.GetValue<int>("RelaxMaxSingletapBPM", 250);
+            get => config.GetValue<int>("RelaxMaxSingletapBPM", 500);
             set => config.SetValue<int>("RelaxMaxSingletapBPM", value);
         }
 
         public int AlternateIfLessThan
         {
-            get => config.GetValue<int>("AlternateIfLessThan", 60000 / MaxSingletapBPM);
-            set => config.SetValue<int>("AlternateIfLessThan", value);
+            get => config.GetValue<int>("RelaxAlternateIfLessThan", 60000 / MaxSingletapBPM);
+            set => config.SetValue<int>("RelaxAlternateIfLessThan", value);
         }
 
         public int AudioOffset
@@ -59,18 +59,6 @@ namespace osu_rx.Configuration
         {
             get => config.GetValue<int>("RelaxHoldBeforeSpinnerTime", 500);
             set => config.SetValue<int>("RelaxHoldBeforeSpinnerTime", value);
-        }
-
-        public bool UseCustomWindowTitle
-        {
-            get => config.GetValue<bool>("UseCustomWindowTitle", false);
-            set => config.SetValue<bool>("UseCustomWindowTitle", value);
-        }
-
-        public string CustomWindowTitle
-        {
-            get => config.GetValue<string>("CustomWindowTitle", string.Empty);
-            set => config.SetValue<string>("CustomWindowTitle", value);
         }
 
         public bool EnableHitScan
@@ -125,6 +113,18 @@ namespace osu_rx.Configuration
         {
             get => config.GetValue<double>("TimewarpRate", 1);
             set => config.SetValue<double>("TimewarpRate", value);
+        }
+
+        public bool UseCustomWindowTitle
+        {
+            get => config.GetValue<bool>("UseCustomWindowTitle", false);
+            set => config.SetValue<bool>("UseCustomWindowTitle", value);
+        }
+
+        public string CustomWindowTitle
+        {
+            get => config.GetValue<string>("CustomWindowTitle", string.Empty);
+            set => config.SetValue<string>("CustomWindowTitle", value);
         }
 
         public ConfigManager() => config = new Config();
