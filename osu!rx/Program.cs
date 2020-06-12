@@ -3,7 +3,6 @@ using osu.Enums;
 using osu_rx.Configuration;
 using osu_rx.Core.Relax;
 using osu_rx.Core.Timewarp;
-using osu_rx.Helpers;
 using SimpleDependencyInjection;
 using System;
 using System.Reflection;

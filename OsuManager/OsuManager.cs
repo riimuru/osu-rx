@@ -6,6 +6,7 @@ using osu.Memory.Objects.Window;
 using SimpleDependencyInjection;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
@@ -14,6 +15,8 @@ namespace osu
 {
     public class OsuManager
     {
+        private string osuRewriteExecutableName;
+
         public string DebugInfo { get; private set; }
 
         public OsuProcess OsuProcess { get; private set; }
@@ -75,22 +78,17 @@ namespace osu
         {
             Console.WriteLine("Initializing...");
 
-            var osuProcess = Process.GetProcessesByName("osu!").FirstOrDefault();
-            if (osuProcess == default)
+            initializeOsuRewriteConfig();
+
+            var osuProcess = tryGetProcess();
+            if (osuProcess == null)
             {
                 Console.WriteLine("\nWaiting for osu!...");
 
-                while (true)
+                while (osuProcess == null)
                 {
-                    osuProcess = Process.GetProcessesByName("osu!").FirstOrDefault();
-                    if (osuProcess != default)
-                    {
-                        osuProcess.Refresh();
-                        if (osuProcess.MainWindowTitle.Contains("osu!") && !osuProcess.MainWindowTitle.Contains("updater"))
-                            break;
-                    }
-
-                    Thread.Sleep(500);
+                    osuProcess = tryGetProcess();
+                    Thread.Sleep(1000);
                 }
             }
 
@@ -101,6 +99,33 @@ namespace osu
             DependencyContainer.Cache(OsuProcess);
 
             return scanMemory();
+        }
+
+        private void initializeOsuRewriteConfig()
+        {
+            if (!File.Exists(@"osu!rewrite.ini"))
+                File.AppendAllText(@"osu!rewrite.ini", "ExecutableName = osu!rewrite");
+
+            string[] split = File.ReadAllLines(@"osu!rewrite.ini").First().Split('=');
+
+            osuRewriteExecutableName = split.Last().Trim();
+        }
+
+        private Process tryGetProcess()
+        {
+            var osuProcess = Process.GetProcessesByName("osu!").FirstOrDefault();
+            var osuRewriteProcess = Process.GetProcessesByName(osuRewriteExecutableName).FirstOrDefault();
+
+            if (osuProcess != null)
+            {
+                osuProcess.Refresh();
+                if (!string.IsNullOrEmpty(osuProcess.MainWindowTitle) && osuProcess.MainWindowTitle != "osu! updater")
+                    return osuProcess;
+            }
+            else if (osuRewriteProcess != null && osuRewriteProcess.PrivateMemorySize64 / (1024 * 1024) >= 200) //TODO: this is a very bad way to check if osu! is running or not, but that's the easiest solution i came up with
+                return osuRewriteProcess;
+
+            return null;
         }
 
         private UIntPtr timeAddress;
