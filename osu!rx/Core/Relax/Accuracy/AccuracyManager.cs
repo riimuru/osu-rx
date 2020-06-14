@@ -20,6 +20,7 @@ namespace osu_rx.Core.Relax.Accuracy
         private int hitWindow100;
         private int hitWindow300;
 
+        private bool canMiss;
         private int lastHitScanIndex;
         private Vector2? lastOnNotePosition;
 
@@ -52,6 +53,7 @@ namespace osu_rx.Core.Relax.Accuracy
 
             if (lastHitScanIndex != index)
             {
+                canMiss = configManager.HitScanMissChance != 0 && random.Next(1, 101) <= configManager.HitScanMissChance;
                 lastHitScanIndex = index;
                 lastOnNotePosition = null;
             }
@@ -86,9 +88,8 @@ namespace osu_rx.Core.Relax.Accuracy
             if (distanceToObject <= hitObjectRadius)
                 return HitScanResult.CanHit;
 
-            if (configManager.HitScanMissChance != 0)
-                if (distanceToObject <= hitObjectRadius + configManager.HitScanRadiusAdditional && random.Next(1, 101) <= configManager.HitScanMissChance && !intersectsWithOtherHitObjects(index + 1))
-                    return HitScanResult.CanHit;
+            if (canMiss && distanceToObject <= hitObjectRadius + configManager.HitScanRadiusAdditional && !intersectsWithOtherHitObjects(index + 1))
+                return HitScanResult.CanHit;
 
             return HitScanResult.Wait;
         }
