@@ -33,14 +33,16 @@ namespace osu.Memory.Objects.Player
             {
                 var hitObjects = new List<OsuHitObject>();
 
-                UIntPtr hitObjectListPointer = (UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x48);
-                UIntPtr hitObjectListItemsPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectListPointer + 0x4);
+                UIntPtr hitObjectListItemsPointer()
+                {
+                    return (UIntPtr)OsuProcess.ReadUInt32((UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x48) + 0x4);
+                }
 
                 for (int i = 0; i < HitObjectsCount; i++)
                 {
                     OsuHitObject hitObject = null;
 
-                    UIntPtr hitObjectPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectListItemsPointer + 0x8 + 0x4 * i);
+                    UIntPtr hitObjectPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectListItemsPointer() + 0x8 + 0x4 * i);
 
                     HitObjectType type = (HitObjectType)OsuProcess.ReadInt32(hitObjectPointer + 0x18);
                     type &= ~HitObjectType.ComboOffset;

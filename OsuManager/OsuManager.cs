@@ -3,6 +3,7 @@ using osu.Memory;
 using osu.Memory.Objects.Bindings;
 using osu.Memory.Objects.Player;
 using osu.Memory.Objects.Window;
+using osu.Memory.Processes;
 using SimpleDependencyInjection;
 using System;
 using System.Diagnostics;

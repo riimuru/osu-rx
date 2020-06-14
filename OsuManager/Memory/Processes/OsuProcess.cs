@@ -1,26 +1,15 @@
-﻿using System;
+﻿using osu.Memory.Processes.Enums;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using static osu.Memory.OsuProcess;
+using static osu.Memory.Processes.MemoryBasicInformation;
 
-namespace osu.Memory
+namespace osu.Memory.Processes
 {
     public class OsuProcess
     {
-        [StructLayout(LayoutKind.Sequential)]
-        public struct MEMORY_BASIC_INFORMATION
-        {
-            public UIntPtr BaseAddress;
-            public UIntPtr AllocationBase;
-            public uint AllocationProtect;
-            public UIntPtr RegionSize;
-            public MemoryState State;
-            public MemoryProtect Protect;
-            public MemoryType Type;
-        }
-
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool ReadProcessMemory(IntPtr hProcess, UIntPtr lpBaseAddress, [Out] byte[] lpBuffer, uint dwSize, out UIntPtr lpNumberOfBytesRead);
 
@@ -29,7 +18,7 @@ namespace osu.Memory
 
         //TODO: x64 support
         [DllImport("kernel32.dll")]
-        public static extern int VirtualQueryEx(IntPtr hProcess, UIntPtr lpAddress, out MEMORY_BASIC_INFORMATION lpBuffer, uint dwLength);
+        public static extern int VirtualQueryEx(IntPtr hProcess, UIntPtr lpAddress, out MEMORY_BASIC_INFORMATION_32 lpBuffer, uint dwLength);
 
         public Process Process { get; private set; }
 
@@ -37,7 +26,7 @@ namespace osu.Memory
 
         public bool FindPattern(string pattern, out UIntPtr result)
         {
-            byte?[] patternBytes = parsePattern(pattern);
+            PatternByte[] patternBytes = parsePattern(pattern);
 
             var regions = EnumerateMemoryRegions();
             foreach (var region in regions)
@@ -62,7 +51,7 @@ namespace osu.Memory
             var regions = new List<MemoryRegion>();
             UIntPtr address = UIntPtr.Zero;
 
-            while (VirtualQueryEx(Process.Handle, address, out MEMORY_BASIC_INFORMATION basicInformation, (uint)Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION))) != 0)
+            while (VirtualQueryEx(Process.Handle, address, out MEMORY_BASIC_INFORMATION_32 basicInformation, (uint)Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION_32))) != 0)
             {
                 if (basicInformation.State != MemoryState.MemFree && !basicInformation.Protect.HasFlag(MemoryProtect.PageGuard))
                     regions.Add(new MemoryRegion(basicInformation));
@@ -115,22 +104,20 @@ namespace osu.Memory
             return encoding.GetString(ReadMemory(stringAddress + 0x8, (uint)length)).Replace("\0", string.Empty);
         }
 
-        private byte?[] parsePattern(string pattern)
+        private PatternByte[] parsePattern(string pattern)
         {
-            byte?[] patternBytes = new byte?[pattern.Split(' ').Length];
+            PatternByte[] patternBytes = new PatternByte[pattern.Split(' ').Length];
             for (int i = 0; i < patternBytes.Length; i++)
             {
                 string currentByte = pattern.Split(' ')[i];
-                if (currentByte != "??")
-                    patternBytes[i] = Convert.ToByte(currentByte, 16);
-                else
-                    patternBytes[i] = null;
+
+                patternBytes[i] = currentByte == "??" ? new PatternByte(0x0, true) : new PatternByte(Convert.ToByte(currentByte, 16));
             }
 
             return patternBytes;
         }
 
-        private bool findMatch(byte?[] pattern, byte[] buffer, out UIntPtr result)
+        private bool findMatch(PatternByte[] pattern, byte[] buffer, out UIntPtr result)
         {
             result = UIntPtr.Zero;
 
@@ -138,7 +125,7 @@ namespace osu.Memory
             {
                 for (int j = 0; j < pattern.Length; j++)
                 {
-                    if (pattern[j] != null && pattern[j] != buffer[i + j])
+                    if (!pattern[j].Matches(buffer[i + j]))
                         break;
 
                     if (j == pattern.Length - 1)
@@ -151,54 +138,5 @@ namespace osu.Memory
 
             return false;
         }
-    }
-
-    public class MemoryRegion
-    {
-        public UIntPtr BaseAddress { get; private set; }
-        public UIntPtr RegionSize { get; private set; }
-        public UIntPtr Start { get; private set; }
-        public UIntPtr End { get; private set; }
-        public MemoryState State { get; private set; }
-        public MemoryProtect Protect { get; private set; }
-        public MemoryType Type { get; private set; }
-
-        public MemoryRegion(MEMORY_BASIC_INFORMATION basicInformation)
-        {
-            BaseAddress = basicInformation.BaseAddress;
-            RegionSize = basicInformation.RegionSize;
-            State = basicInformation.State;
-            Protect = basicInformation.Protect;
-            Type = basicInformation.Type;
-        }
-    }
-
-    public enum MemoryState
-    {
-        MemCommit = 0x1000,
-        MemReserved = 0x2000,
-        MemFree = 0x10000
-    }
-
-    public enum MemoryType
-    {
-        MemPrivate = 0x20000,
-        MemMapped = 0x40000,
-        MemImage = 0x1000000
-    }
-
-    public enum MemoryProtect
-    {
-        PageNoAccess = 0x00000001,
-        PageReadonly = 0x00000002,
-        PageReadWrite = 0x00000004,
-        PageWriteCopy = 0x00000008,
-        PageExecute = 0x00000010,
-        PageExecuteRead = 0x00000020,
-        PageExecuteReadWrite = 0x00000040,
-        PageExecuteWriteCopy = 0x00000080,
-        PageGuard = 0x00000100,
-        PageNoCache = 0x00000200,
-        PageWriteCombine = 0x00000400
     }
 }
