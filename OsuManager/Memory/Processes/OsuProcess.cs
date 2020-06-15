@@ -26,7 +26,7 @@ namespace osu.Memory.Processes
 
         public bool FindPattern(string pattern, out UIntPtr result)
         {
-            PatternByte[] patternBytes = parsePattern(pattern);
+            var parsedPattern = Pattern.Parse(pattern);
 
             var regions = EnumerateMemoryRegions();
             foreach (var region in regions)
@@ -35,7 +35,7 @@ namespace osu.Memory.Processes
                     continue;
 
                 byte[] buffer = ReadMemory(region.BaseAddress, region.RegionSize.ToUInt32());
-                if (findMatch(patternBytes, buffer, out UIntPtr match))
+                if (findMatch(parsedPattern, buffer, out UIntPtr match))
                 {
                     result = (UIntPtr)(region.BaseAddress.ToUInt32() + match.ToUInt32());
                     return true;
@@ -104,34 +104,34 @@ namespace osu.Memory.Processes
             return encoding.GetString(ReadMemory(stringAddress + 0x8, (uint)length)).Replace("\0", string.Empty);
         }
 
-        private PatternByte[] parsePattern(string pattern)
-        {
-            PatternByte[] patternBytes = new PatternByte[pattern.Split(' ').Length];
-            for (int i = 0; i < patternBytes.Length; i++)
-            {
-                string currentByte = pattern.Split(' ')[i];
-
-                patternBytes[i] = currentByte == "??" ? new PatternByte(0x0, true) : new PatternByte(Convert.ToByte(currentByte, 16));
-            }
-
-            return patternBytes;
-        }
-
-        private bool findMatch(PatternByte[] pattern, byte[] buffer, out UIntPtr result)
+        private unsafe bool findMatch(Pattern pattern, byte[] buffer, out UIntPtr result)
         {
             result = UIntPtr.Zero;
 
-            for (int i = 0; i + pattern.Length <= buffer.Length; i++)
-            {
-                for (int j = 0; j < pattern.Length; j++)
-                {
-                    if (!pattern[j].Matches(buffer[i + j]))
-                        break;
+            int patternLength = pattern.Bytes.Length;
+            int bufferLength = buffer.Length;
 
-                    if (j == pattern.Length - 1)
+            fixed (byte* bufferPtr = buffer)
+            {
+                fixed (bool* maskPtr = pattern.Mask)
+                {
+                    fixed (byte* patternPtr = pattern.Bytes)
                     {
-                        result = (UIntPtr)i;
-                        return true;
+                        for (int i = 0; i + patternLength <= bufferLength; i++)
+                        {
+                            for (int j = 0; j < patternLength; j++)
+                            {
+                                if (!maskPtr[j] || patternPtr[j] == bufferPtr[i + j])
+                                    continue;
+
+                                goto loopEnd;
+                            }
+
+                            result = (UIntPtr)i;
+                            return true;
+
+                            loopEnd:;
+                        }
                     }
                 }
             }

@@ -4,8 +4,8 @@
     {
         public static readonly Signature Time = new Signature
         {
-            Pattern = "D9 58 2C 8B 3D ?? ?? ?? ?? 8B 1D",
-            Offset = 0xB
+            Pattern = "7E 55 8B 76 10 DB 05",
+            Offset = 0x7
         };
 
         public const int IsAudioPlayingOffset = 0x30;
