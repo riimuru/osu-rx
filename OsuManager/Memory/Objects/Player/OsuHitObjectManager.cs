@@ -33,10 +33,7 @@ namespace osu.Memory.Objects.Player
             {
                 var hitObjects = new List<OsuHitObject>();
 
-                UIntPtr hitObjectListItemsPointer()
-                {
-                    return (UIntPtr)OsuProcess.ReadUInt32((UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x48) + 0x4);
-                }
+                UIntPtr hitObjectListItemsPointer() => (UIntPtr)OsuProcess.ReadUInt32((UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x48) + 0x4);
 
                 for (int i = 0; i < HitObjectsCount; i++)
                 {

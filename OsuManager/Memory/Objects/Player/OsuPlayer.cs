@@ -61,6 +61,8 @@ namespace osu.Memory.Objects.Player
             }
         }
 
+        public Ruleset CurrentRuleset => (Ruleset)OsuProcess.ReadInt32(BaseAddress + 0x114);
+
         public bool ReplayMode => OsuProcess.ReadBool(BaseAddress + 0x17E);
 
         public int AudioCheckCount

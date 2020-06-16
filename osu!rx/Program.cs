@@ -400,7 +400,7 @@ namespace osu_rx
 
                 var relaxTask = Task.Factory.StartNew(() =>
                 {
-                    if (configManager.EnableRelax && beatmap.Ruleset == Ruleset.Standard)
+                    if (configManager.EnableRelax && osuManager.Player.CurrentRuleset == Ruleset.Standard)
                         relax.Start(beatmap);
                 });
 
