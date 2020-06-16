@@ -27,6 +27,7 @@ namespace osu.Memory.Processes
         public bool FindPattern(string pattern, out UIntPtr result)
         {
             var parsedPattern = Pattern.Parse(pattern);
+            var lastOccurenceTable = generateLastOccurenceTable(parsedPattern);
 
             var regions = EnumerateMemoryRegions();
             foreach (var region in regions)
@@ -35,7 +36,7 @@ namespace osu.Memory.Processes
                     continue;
 
                 byte[] buffer = ReadMemory(region.BaseAddress, region.RegionSize.ToUInt32());
-                if (findMatch(parsedPattern, buffer, out UIntPtr match))
+                if (findMatch(parsedPattern, buffer, lastOccurenceTable, out UIntPtr match))
                 {
                     result = (UIntPtr)(region.BaseAddress.ToUInt32() + match.ToUInt32());
                     return true;
@@ -104,33 +105,52 @@ namespace osu.Memory.Processes
             return encoding.GetString(ReadMemory(stringAddress + 0x8, (uint)length)).Replace("\0", string.Empty);
         }
 
-        private unsafe bool findMatch(Pattern pattern, byte[] buffer, out UIntPtr result)
+        private int[] generateLastOccurenceTable(Pattern pattern)
+        {
+            var table = new int[256];
+
+            for (int k = 0; k < table.Length; k++)
+                table[k] = -1;
+
+            for (int k = 0; k < pattern.Bytes.Length; k++)
+                if (pattern.Mask[k])
+                    table[pattern.Bytes[k]] = k;
+
+            return table;
+        }
+
+        private unsafe bool findMatch(Pattern pattern, byte[] buffer, int[] lastOccurenceTable, out UIntPtr result)
         {
             result = UIntPtr.Zero;
 
             int patternLength = pattern.Bytes.Length;
             int bufferLength = buffer.Length;
+            int patternLastIndex = patternLength - 1;
 
-            fixed (byte* bufferPtr = buffer)
+            fixed (int* lastOccurenceTablePtr = lastOccurenceTable)
             {
-                fixed (bool* maskPtr = pattern.Mask)
+                fixed (byte* bufferPtr = buffer)
                 {
-                    fixed (byte* patternPtr = pattern.Bytes)
+                    fixed (bool* maskPtr = pattern.Mask)
                     {
-                        for (int i = 0; i + patternLength <= bufferLength; i++)
+                        fixed (byte* patternPtr = pattern.Bytes)
                         {
-                            for (int j = 0; j < patternLength; j++)
+                            int j = patternLastIndex;
+                            for (int i = patternLastIndex; i < bufferLength; i += patternLength - Math.Min(j, 1 + lastOccurenceTablePtr[bufferPtr[i]]))
                             {
-                                if (!maskPtr[j] || patternPtr[j] == bufferPtr[i + j])
-                                    continue;
+                                for (j = patternLastIndex; j > 0; i--, j--)
+                                {
+                                    if (!maskPtr[j] || patternPtr[j] == bufferPtr[i])
+                                        continue;
 
-                                goto loopEnd;
+                                    goto loopEnd;
+                                }
+
+                                result = (UIntPtr)i;
+                                return true;
+
+                                loopEnd:;
                             }
-
-                            result = (UIntPtr)i;
-                            return true;
-
-                            loopEnd:;
                         }
                     }
                 }

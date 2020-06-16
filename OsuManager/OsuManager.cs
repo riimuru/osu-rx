@@ -138,7 +138,7 @@ namespace osu
             bool timeResult = false, modeResult = false, viewportResult = false, bindingManagerResult = false, playerResult = false;
             try
             {
-                Console.WriteLine("\nScanning for memory addresses (this may take a while)...");
+                Console.WriteLine("\nScanning for memory addresses...");
 
                 timeResult = OsuProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr timePointer);
                 modeResult = OsuProcess.FindPattern(Signatures.Mode.Pattern, out UIntPtr modePointer);
