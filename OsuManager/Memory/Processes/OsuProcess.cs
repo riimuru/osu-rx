@@ -28,11 +28,12 @@ namespace osu.Memory.Processes
         {
             var parsedPattern = Pattern.Parse(pattern);
             var lastOccurenceTable = generateLastOccurenceTable(parsedPattern);
+            var mainModule = Process.MainModule;
 
             var regions = EnumerateMemoryRegions();
             foreach (var region in regions)
             {
-                if ((uint)region.BaseAddress < (uint)Process.MainModule.BaseAddress)
+                if ((uint)region.BaseAddress < (uint)mainModule.BaseAddress)
                     continue;
 
                 byte[] buffer = ReadMemory(region.BaseAddress, region.RegionSize.ToUInt32());
