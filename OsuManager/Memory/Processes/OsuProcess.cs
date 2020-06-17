@@ -24,22 +24,34 @@ namespace osu.Memory.Processes
 
         public OsuProcess(Process process) => Process = process;
 
+        private List<MemoryRegion> cachedMemoryRegions;
+
         public bool FindPattern(string pattern, out UIntPtr result)
         {
             var parsedPattern = Pattern.Parse(pattern);
             var lastOccurenceTable = generateLastOccurenceTable(parsedPattern);
+            var mainModule = Process.MainModule;
 
-            var regions = EnumerateMemoryRegions();
+            const int bufferSize = 0x80000;
+            var buffer = new byte[bufferSize + parsedPattern.Bytes.Length - 1];
+
+            var regions = cachedMemoryRegions ?? (cachedMemoryRegions = EnumerateMemoryRegions());
             foreach (var region in regions)
             {
-                if ((uint)region.BaseAddress < (uint)Process.MainModule.BaseAddress)
+                if ((uint)region.BaseAddress < (uint)mainModule.BaseAddress)
                     continue;
 
-                byte[] buffer = ReadMemory(region.BaseAddress, region.RegionSize.ToUInt32());
-                if (findMatch(parsedPattern, buffer, lastOccurenceTable, out UIntPtr match))
+                ulong start = region.BaseAddress.ToUInt64();
+                ulong end = region.BaseAddress.ToUInt64() + region.RegionSize.ToUInt64();
+                for (ulong i = start; i < end; i += bufferSize)
                 {
-                    result = (UIntPtr)(region.BaseAddress.ToUInt32() + match.ToUInt32());
-                    return true;
+                    var currentBufferLen = Math.Min((uint)buffer.Length, end - i);
+                    ReadMemory(new UIntPtr(i), buffer, (uint)currentBufferLen);
+                    if (findMatch(parsedPattern, buffer, lastOccurenceTable, out UIntPtr match, (int)currentBufferLen))
+                    {
+                        result = new UIntPtr(i + match.ToUInt64());
+                        return true;
+                    }
                 }
             }
 
@@ -119,12 +131,12 @@ namespace osu.Memory.Processes
             return table;
         }
 
-        private unsafe bool findMatch(Pattern pattern, byte[] buffer, int[] lastOccurenceTable, out UIntPtr result)
+        private unsafe bool findMatch(Pattern pattern, byte[] buffer, int[] lastOccurenceTable, out UIntPtr result, int bufferLength = -1)
         {
             result = UIntPtr.Zero;
 
             int patternLength = pattern.Bytes.Length;
-            int bufferLength = buffer.Length;
+            bufferLength = bufferLength != -1 ? bufferLength : buffer.Length;
             int patternLastIndex = patternLength - 1;
 
             fixed (int* lastOccurenceTablePtr = lastOccurenceTable)
