@@ -24,8 +24,8 @@
 
         public static readonly Signature BindingManager = new Signature
         {
-            Pattern = "8B 3D ?? ?? ?? ?? 38 07 8B CF",
-            Offset = 0x2
+            Pattern = "8D 45 D8 50 8B 0D ?? ?? ?? ?? 8B 55 E0 39 09",
+            Offset = 0x6
         };
 
         public static readonly Signature Player = new Signature

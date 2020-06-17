@@ -38,7 +38,7 @@ namespace osu
 
         public bool CanLoad => CurrentMode == OsuModes.Play && Player.IsLoaded && !Player.ReplayMode;
 
-        public bool CanPlay => CurrentMode == OsuModes.Play && Player.SingleComponentLoaded && !Player.ReplayMode;
+        public bool CanPlay => CurrentMode == OsuModes.Play && Player.SingleComponentLoaded;
 
         public float HitObjectScalingFactor(float circleSize) => 1f - 0.7f * (float)AdjustDifficulty(circleSize);
 
@@ -117,16 +117,13 @@ namespace osu
         private Process tryGetProcess()
         {
             var osuProcess = Process.GetProcessesByName("osu!").FirstOrDefault();
-            var osuRewriteProcess = Process.GetProcessesByName(osuRewriteExecutableName).FirstOrDefault();
 
-            if (osuProcess != null)
-            {
-                osuProcess.Refresh();
-                if (!string.IsNullOrEmpty(osuProcess.MainWindowTitle) && osuProcess.MainWindowTitle != "osu! updater")
-                    return osuProcess;
-            }
-            else if (osuRewriteProcess != null && osuRewriteProcess.PrivateMemorySize64 / (1024 * 1024) >= 200) //TODO: this is a very bad way to check if osu! is running or not, but that's the easiest solution i came up with
-                return osuRewriteProcess;
+            if (osuProcess == null)
+                osuProcess = Process.GetProcessesByName(osuRewriteExecutableName).FirstOrDefault();
+
+            //TODO: this is a very bad way to check if osu! is running or not, but that's the easiest solution i came up with
+            if (osuProcess != null && osuProcess.PrivateMemorySize64 / (1024 * 1024) >= 200)
+                return osuProcess;
 
             return null;
         }
