@@ -24,6 +24,8 @@ namespace osu.Memory.Processes
 
         public OsuProcess(Process process) => Process = process;
 
+        private List<MemoryRegion> cachedMemoryRegions;
+
         public bool FindPattern(string pattern, out UIntPtr result)
         {
             var parsedPattern = Pattern.Parse(pattern);
@@ -33,7 +35,7 @@ namespace osu.Memory.Processes
             const int bufferSize = 0x80000;
             var buffer = new byte[bufferSize + parsedPattern.Bytes.Length - 1];
 
-            var regions = EnumerateMemoryRegions();
+            var regions = cachedMemoryRegions ?? (cachedMemoryRegions = EnumerateMemoryRegions());
             foreach (var region in regions)
             {
                 if ((uint)region.BaseAddress < (uint)mainModule.BaseAddress)
