@@ -139,7 +139,7 @@ namespace osu
             {
                 var localProcess = new OsuProcess(osuProcess);
                 //kinda hacky but should be okay for now
-                if (localProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr fadeState))
+                if (localProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr time))
                     return osuProcess;
             }
 
