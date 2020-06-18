@@ -16,7 +16,10 @@ namespace osu
 {
     public class OsuManager
     {
-        private string osuRewriteExecutableName;
+        private UIntPtr timeAddress;
+        private UIntPtr modeAddress;
+
+        private string osuRewriteExecutableName = "osu!rewrite";
 
         public string DebugInfo { get; private set; }
 
@@ -81,7 +84,7 @@ namespace osu
         {
             Console.WriteLine("Initializing...");
 
-            initializeOsuRewriteConfig();
+            initializeLocalConfig();
 
             var osuProcess = tryGetProcess();
             if (osuProcess == null)
@@ -91,7 +94,7 @@ namespace osu
                 while (osuProcess == null)
                 {
                     osuProcess = tryGetProcess();
-                    Thread.Sleep(1000);
+                    Thread.Sleep(1500);
                 }
             }
 
@@ -104,14 +107,25 @@ namespace osu
             return scanMemory();
         }
 
-        private void initializeOsuRewriteConfig()
+        private void initializeLocalConfig()
         {
-            if (!File.Exists(@"osu!rewrite.ini"))
-                File.AppendAllText(@"osu!rewrite.ini", "ExecutableName = osu!rewrite");
+            if (!File.Exists(@"osu!manager.ini"))
+                File.AppendAllText(@"osu!manager.ini", "OsuRewriteExecutableName = osu!rewrite");
 
-            string[] split = File.ReadAllLines(@"osu!rewrite.ini").First().Split('=');
+            string[] lines = File.ReadAllLines(@"osu!manager.ini");
+            foreach (string line in lines)
+            {
+                string[] split = line.Split(new char[] { '=' }, 2);
+                string variable = split.First().Trim().ToLower();
+                string value = split.Last().Trim().ToLower();
 
-            osuRewriteExecutableName = split.Last().Trim();
+                switch (variable)
+                {
+                    case "osurewriteexecutablename":
+                        osuRewriteExecutableName = value;
+                        break;
+                }
+            }
         }
 
         private Process tryGetProcess()
@@ -121,15 +135,17 @@ namespace osu
             if (osuProcess == null)
                 osuProcess = Process.GetProcessesByName(osuRewriteExecutableName).FirstOrDefault();
 
-            //TODO: this is a very bad way to check if osu! is running or not, but that's the easiest solution i came up with
-            if (osuProcess != null && osuProcess.PrivateMemorySize64 / (1024 * 1024) >= 200)
-                return osuProcess;
+            if (osuProcess != null)
+            {
+                var localProcess = new OsuProcess(osuProcess);
+                //kinda hacky but should be okay for now
+                if (localProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr fadeState))
+                    return osuProcess;
+            }
 
             return null;
         }
 
-        private UIntPtr timeAddress;
-        private UIntPtr modeAddress;
         private bool scanMemory()
         {
             bool timeResult = false, modeResult = false, viewportResult = false, bindingManagerResult = false, playerResult = false;
