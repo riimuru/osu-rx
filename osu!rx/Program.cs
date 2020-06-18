@@ -82,8 +82,8 @@ namespace osu_rx
             Console.Clear();
             Console.WriteLine("---Settings---\n");
             Console.WriteLine("1. Relax settings");
-            Console.WriteLine("2. Other settings\n");
-            Console.WriteLine("3. Experimental settings");
+            Console.WriteLine("2. Timewarp settings");
+            Console.WriteLine("3. Other settings");
 
             Console.WriteLine("\nESC. Back to main menu");
 
@@ -93,10 +93,10 @@ namespace osu_rx
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D2:
-                    DrawOtherSettings();
+                    DrawTimewarpSettings();
                     break;
                 case ConsoleKey.D3:
-                    DrawExperimentalSettings();
+                    DrawOtherSettings();
                     break;
                 case ConsoleKey.Escape:
                     DrawMainMenu();
@@ -335,12 +335,19 @@ namespace osu_rx
             }
         }
 
-        private static void DrawExperimentalSettings()
+        private static void DrawTimewarpSettings()
         {
             Console.Clear();
-            Console.WriteLine("---Experimental Settings---\n");
+            Console.WriteLine("---Timewarp Settings---\n");
             Console.WriteLine($"1. Timewarp      | [{(configManager.EnableTimewarp ? "ENABLED" : "DISABLED")}]");
-            Console.WriteLine($"2. Timewarp rate | [{configManager.TimewarpRate}x]");
+            Console.WriteLine($"2. Timewarp rate | [{configManager.TimewarpRate}x]\n");
+
+            Console.WriteLine("---!!!---");
+            Console.WriteLine("Please note that timewarp is only partially undetected at this moment.");
+            Console.WriteLine("Bancho (and probably any other server) can't detect it and auto-restrict you.");
+            Console.WriteLine("But third party anticheats, such as firedigger's replay analyzer and circleguard will detect timewarp presence.\n");
+            Console.WriteLine("Use only at your own risk.");
+            Console.WriteLine("---!!!---");
 
             Console.WriteLine("\nESC. Back to settings");
 
@@ -348,7 +355,7 @@ namespace osu_rx
             {
                 case ConsoleKey.D1:
                     configManager.EnableTimewarp = !configManager.EnableTimewarp;
-                    DrawExperimentalSettings();
+                    DrawTimewarpSettings();
                     break;
                 case ConsoleKey.D2:
                     Console.Clear();
@@ -357,13 +364,13 @@ namespace osu_rx
                         configManager.TimewarpRate = rate;
                     else
                         goto case ConsoleKey.D2;
-                    DrawExperimentalSettings();
+                    DrawTimewarpSettings();
                     break;
                 case ConsoleKey.Escape:
                     DrawSettings();
                     break;
                 default:
-                    DrawExperimentalSettings();
+                    DrawTimewarpSettings();
                     break;
             }
         }
