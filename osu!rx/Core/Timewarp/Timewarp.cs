@@ -76,6 +76,9 @@ namespace osu_rx.Core.Timewarp
 
         private void setRate(double rate, bool bypass = true)
         {
+            //nightcore hack
+            rate /= osuManager.Player.HitObjectManager.CurrentMods.HasFlag(Mods.Nightcore) ? 1.5f : 1;
+
             if (osuManager.OsuProcess.ReadDouble(audioRateAddress) != rate)
             {
                 osuManager.OsuProcess.WriteMemory(audioRateAddress, BitConverter.GetBytes(rate), sizeof(double));
