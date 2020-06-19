@@ -1,4 +1,5 @@
 ﻿using osu.Enums;
+using osu.Helpers;
 using osu.Memory;
 using osu.Memory.Objects.Bindings;
 using osu.Memory.Objects.Player;
@@ -137,9 +138,18 @@ namespace osu
 
             if (osuProcess != null)
             {
-                var localProcess = new OsuProcess(osuProcess);
-                //kinda hacky but should be okay for now
-                if (localProcess.FindPattern(Signatures.Time.Pattern, out UIntPtr time))
+                IntPtr windowHandle = osuProcess.MainWindowHandle;
+
+                bool isOsuRewrite = osuProcess.ProcessName == osuRewriteExecutableName;
+                if (isOsuRewrite)
+                {
+                    var osuRewriteWindowHandles = osuProcess.GetWindowHandles();
+                    if (osuRewriteWindowHandles.Count == 1)
+                        windowHandle = osuRewriteWindowHandles.First();
+                }
+
+                string windowTitle = osuProcess.GetWindowTitleByHandle(windowHandle);
+                if (windowTitle.StartsWith("osu!") && windowTitle != "osu! updater")
                     return osuProcess;
             }
 
