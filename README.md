@@ -16,9 +16,9 @@ osu!rx and the [framework](OsuManager) it's built on are still heavily under dev
   
 - **Hit Timing randomization:** osu!rx automatically randomizes click timings depending on whether you're currently alternating or not.
 
-- **HitWindow100 Key:** if this key is pressed, osu!rx will widen current hit timings so you can get more 100s and slightly increase your Unstable Rate.
-
 - **HitScan:** it will scan for current cursor position and determine whether relax should hit right now, earlier or later.
+
+- **Customizability:** pretty much everything that is already fully implemented can be configured to better suit your needs.
 
 - **[osu!rewrite](https://github.com/xxCherry/osu-rewrite) support:** osu!rx is the first [osu!rewrite](https://github.com/xxCherry/osu-rewrite)-compatible hack ever!
 
@@ -52,7 +52,8 @@ osu!rx and the [framework](OsuManager) it's built on are still heavily under dev
    ![s](https://i.ibb.co/jZY8fk0/image.png)
 
 ## Detection state
-At this moment osu!rx is undetected and its detection state is constantly tracked by me and other users.
+**Relax:** undetected  
+**Timewarp:** partially **detected**. Bancho (and probably any other server) can't detect it and auto-restrict you. But third party anticheats, such as firedigger's replay analyzer and circleguard will detect timewarp presence.
 
 ## What can i do to help osu!rx?
 If you like what i'm doing and are willing to support me financially - consider becoming a sponsor!  
@@ -65,8 +66,8 @@ Any help is highly appreciated!
   
 ### Areas that need your attention
 Hit Timing randomization and HitScan need improvements and your feedback. Take a look at the code to get started!
-- [Hit Timings randomization](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L96)
-- [HitScan](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L46)
+- [Hit Timings randomization](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L66)
+- [HitScan](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L110)
 
 ## Demonstation video
 ***osu!rx does not affect performance. In this case lags were caused by obs and cute girls in the background.***
