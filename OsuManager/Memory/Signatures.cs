@@ -18,8 +18,8 @@
 
         public static readonly Signature Viewport = new Signature
         {
-            Pattern = "56 FF 75 F0 8B 15",
-            Offset = 0x6
+            Pattern = "89 45 C8 8B 72 0C 8B 15",
+            Offset = 0x8
         };
 
         public static readonly Signature BindingManager = new Signature

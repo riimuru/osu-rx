@@ -6,7 +6,7 @@ using System.Text;
 
 namespace osu.Helpers
 {
-    public static class Extensions
+    internal static class Extensions
     {
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
