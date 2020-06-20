@@ -1,4 +1,5 @@
 ﻿using osu;
+using osu.Enums;
 using osu.Memory.Objects.Player.Beatmaps;
 using osu.Memory.Objects.Player.Beatmaps.Objects;
 using osu_rx.Configuration;
@@ -20,6 +21,15 @@ namespace osu_rx.Core.Relax.Accuracy
         private int hitWindow100;
         private int hitWindow300;
 
+        private float audioRate;
+
+        //hittimings
+        private int minOffset;
+        private int maxOffset;
+        private int minAlternateOffset;
+        private int maxAlternateOffset;
+
+        //hitscan
         private bool canMiss;
         private int lastHitScanIndex;
         private Vector2? lastOnNotePosition;
@@ -40,8 +50,61 @@ namespace osu_rx.Core.Relax.Accuracy
             hitWindow100 = osuManager.HitWindow100(beatmap.OverallDifficulty);
             hitWindow300 = osuManager.HitWindow300(beatmap.OverallDifficulty);
 
+            var mods = osuManager.Player.HitObjectManager.CurrentMods;
+            audioRate = mods.HasFlag(Mods.HalfTime) ? 0.75f : mods.HasFlag(Mods.DoubleTime) ? 1.5f : 1;
+
+            minOffset = calculateTimingOffset(configManager.HitTimingsMinOffset);
+            maxOffset = calculateTimingOffset(configManager.HitTimingsMaxOffset);
+            minAlternateOffset = calculateTimingOffset(configManager.HitTimingsAlternateMinOffset);
+            maxAlternateOffset = calculateTimingOffset(configManager.HitTimingsAlternateMaxOffset);
+
+            canMiss = false;
             lastHitScanIndex = -1;
             lastOnNotePosition = null;
+        }
+
+        public HitObjectTimings GetHitObjectTimings(int index, bool alternating, bool doubleDelay)
+        {
+            var result = new HitObjectTimings();
+
+            int startOffsetMin = (int)((alternating ? minAlternateOffset : minOffset) * (doubleDelay ? configManager.HitTimingsDoubleDelayFactor : 1f));
+            int startOffsetMax = (int)((alternating ? maxAlternateOffset : maxOffset) * (doubleDelay ? configManager.HitTimingsDoubleDelayFactor : 1f));
+
+            result.StartOffset = MathHelper.Clamp(random.Next(startOffsetMin, startOffsetMax), -hitWindow50, hitWindow50);
+
+            if (beatmap.HitObjects[index] is OsuSlider)
+            {
+                int sliderDuration = beatmap.HitObjects[index].EndTime - beatmap.HitObjects[index].StartTime;
+                int maxHoldTime = (int)(configManager.HitTimingsMaxSliderHoldTime * audioRate);
+                int holdTime = random.Next(configManager.HitTimingsMinSliderHoldTime, maxHoldTime);
+
+                result.HoldTime = MathHelper.Clamp(holdTime, sliderDuration >= 72 ? -26 : sliderDuration / 2 - 10, maxHoldTime);
+            }
+            else
+            {
+                int maxHoldTime = (int)(configManager.HitTimingsMaxSliderHoldTime * audioRate);
+                int holdTime = random.Next(configManager.HitTimingsMinHoldTime, maxHoldTime);
+
+                result.HoldTime = MathHelper.Clamp(holdTime, 0, maxHoldTime);
+            }
+
+            return result;
+        }
+
+        private int calculateTimingOffset(int percentage)
+        {
+            float multiplier = Math.Abs(percentage) / 100f;
+
+            int hitWindowStartTime = multiplier <= 1 ? 0 : multiplier <= 2 ? hitWindow300 + 1 : hitWindow100 + 1;
+            int hitWindowEndTime = multiplier <= 1 ? hitWindow300 : multiplier <= 2 ? hitWindow100 : hitWindow50;
+            int hitWindowTime = hitWindowEndTime - hitWindowStartTime;
+
+            if (multiplier != 0 && multiplier % 1 == 0) //kinda dirty
+                multiplier = 1;
+            else
+                multiplier %= 1;
+
+            return (int)(hitWindowStartTime + (hitWindowTime * multiplier)) * (percentage < 0 ? -1 : 1);
         }
 
         public HitScanResult GetHitScanResult(int index)
@@ -92,28 +155,6 @@ namespace osu_rx.Core.Relax.Accuracy
                 return HitScanResult.CanHit;
 
             return HitScanResult.Wait;
-        }
-
-        public HitObjectTimings GetHitObjectTimings(int index, bool alternating, bool allowHit100)
-        {
-            var result = new HitObjectTimings();
-
-            float acc = alternating ? random.NextFloat(1.2f, 1.7f) : 2;
-
-            if (allowHit100)
-                result.StartOffset = random.Next(-hitWindow100 / 2, hitWindow100 / 2);
-            else
-                result.StartOffset = random.Next((int)(-hitWindow300 / acc), (int)(hitWindow300 / acc));
-
-            if (beatmap.HitObjects[index] is OsuSlider)
-            {
-                int sliderDuration = beatmap.HitObjects[index].EndTime - beatmap.HitObjects[index].StartTime;
-                result.HoldTime = random.Next(sliderDuration >= 72 ? -26 : sliderDuration / 2 - 10, hitWindow300 * 2);
-            }
-            else
-                result.HoldTime = random.Next(hitWindow300, hitWindow300 * 2);
-
-            return result;
         }
 
         private bool intersectsWithOtherHitObjects(int startIndex)

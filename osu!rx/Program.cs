@@ -28,7 +28,8 @@ namespace osu_rx
             {
                 Console.Clear();
                 Console.WriteLine("osu!rx failed to initialize:\n");
-                Console.WriteLine("Memory scanning failed! Please report this on GitHub/MPGH.");
+                Console.WriteLine("Memory scanning failed! Try restarting osu!, osu!rx or your computer to fix this issue.");
+                Console.WriteLine("It that didn't helped, then report this on GitHub/MPGH.");
                 Console.WriteLine("Please include as much info as possible (OS version, hack version, build source, debug info, etc.).");
                 Console.WriteLine($"\n\nDebug Info:\n");
                 Console.WriteLine(osuManager.DebugInfo);
@@ -115,13 +116,14 @@ namespace osu_rx
             Console.WriteLine($"2. Playstyle                | [{configManager.PlayStyle}]");
             Console.WriteLine($"3. Primary key              | [{configManager.PrimaryKey}]");
             Console.WriteLine($"4. Secondary key            | [{configManager.SecondaryKey}]");
-            Console.WriteLine($"5. Hit window 100 key       | [{configManager.HitWindow100Key}]");
-            Console.WriteLine($"6. Max singletap BPM        | [{configManager.MaxSingletapBPM}]");
-            Console.WriteLine($"7. AlternateIfLessThan      | [{configManager.AlternateIfLessThan}]");
-            Console.WriteLine($"8. Audio offset             | [{configManager.AudioOffset}]");
-            Console.WriteLine($"9. HoldBeforeSpinner time   | [{configManager.HoldBeforeSpinnerTime}]");
+            Console.WriteLine($"5. Double delay key         | [{configManager.DoubleDelayKey}]");
+            Console.WriteLine($"6. Max singletap BPM        | [{configManager.MaxSingletapBPM}BPM]");
+            Console.WriteLine($"7. AlternateIfLessThan      | [{configManager.AlternateIfLessThan}ms]");
+            Console.WriteLine($"8. Audio offset             | [{configManager.AudioOffset}ms]");
+            Console.WriteLine($"9. HoldBeforeSpinner time   | [{configManager.HoldBeforeSpinnerTime}ms]");
 
-            Console.WriteLine($"\n0. Hitscan settings");
+            Console.WriteLine($"\nQ. HitTimings settings");
+            Console.WriteLine($"W. Hitscan settings");
 
             Console.WriteLine("\nESC. Back to settings");
 
@@ -168,8 +170,8 @@ namespace osu_rx
                     break;
                 case ConsoleKey.D5:
                     Console.Clear();
-                    Console.Write("Enter new hit window 100 key: ");
-                    configManager.HitWindow100Key = (VirtualKeyCode)Console.ReadKey(true).Key;
+                    Console.Write("Enter new double delay key: ");
+                    configManager.DoubleDelayKey = (VirtualKeyCode)Console.ReadKey(true).Key;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D6:
@@ -214,7 +216,10 @@ namespace osu_rx
                         goto case ConsoleKey.D9;
                     DrawRelaxSettings();
                     break;
-                case ConsoleKey.D0:
+                case ConsoleKey.Q:
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.W:
                     DrawHitScanSettings();
                     break;
                 case ConsoleKey.Escape:
@@ -226,15 +231,123 @@ namespace osu_rx
             }
         }
 
+        private static void DrawHitTimingsSettings()
+        {
+            Console.Clear();
+            Console.WriteLine("---HitTimings Settings---\n");
+            Console.WriteLine($"1. Minimum offset           | [{configManager.HitTimingsMinOffset}%]");
+            Console.WriteLine($"2. Maximum offset           | [{configManager.HitTimingsMaxOffset}%]");
+            Console.WriteLine($"3. Minimum alternate offset | [{configManager.HitTimingsAlternateMinOffset}%]");
+            Console.WriteLine($"4. Maximum alternate offset | [{configManager.HitTimingsAlternateMaxOffset}%]");
+            Console.WriteLine($"5. Minimum hold time        | [{configManager.HitTimingsMinHoldTime}ms]");
+            Console.WriteLine($"6. Maximum hold time        | [{configManager.HitTimingsMaxHoldTime}ms]");
+            Console.WriteLine($"7. Minimum slider hold time | [{configManager.HitTimingsMinSliderHoldTime}ms]");
+            Console.WriteLine($"8. Maximum slider hold time | [{configManager.HitTimingsMaxSliderHoldTime}ms]");
+            Console.WriteLine($"9. Double delay factor      | [{configManager.HitTimingsDoubleDelayFactor}x]");
+
+            Console.WriteLine("\nESC. Back to relax settings");
+
+            switch (Console.ReadKey(true).Key)
+            {
+                case ConsoleKey.D1:
+                    Console.Clear();
+                    Console.Write("Enter new minimum offset: ");
+                    if (int.TryParse(Console.ReadLine(), out int minOffset))
+                        configManager.HitTimingsMinOffset = minOffset;
+                    else
+                        goto case ConsoleKey.D1;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.D2:
+                    Console.Clear();
+                    Console.Write("Enter new maximum offset: ");
+                    if (int.TryParse(Console.ReadLine(), out int maxOffset))
+                        configManager.HitTimingsMaxOffset = maxOffset;
+                    else
+                        goto case ConsoleKey.D2;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.D3:
+                    Console.Clear();
+                    Console.Write("Enter new minimum alternate offset: ");
+                    if (int.TryParse(Console.ReadLine(), out int minAlternateOffset))
+                        configManager.HitTimingsAlternateMinOffset = minAlternateOffset;
+                    else
+                        goto case ConsoleKey.D3;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.D4:
+                    Console.Clear();
+                    Console.Write("Enter new maximum alternate offset: ");
+                    if (int.TryParse(Console.ReadLine(), out int maxAlternateOffset))
+                        configManager.HitTimingsAlternateMaxOffset = maxAlternateOffset;
+                    else
+                        goto case ConsoleKey.D4;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.D5:
+                    Console.Clear();
+                    Console.Write("Enter new minimum hold time: ");
+                    if (int.TryParse(Console.ReadLine(), out int minHold))
+                        configManager.HitTimingsMinHoldTime = minHold;
+                    else
+                        goto case ConsoleKey.D5;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.D6:
+                    Console.Clear();
+                    Console.Write("Enter new maximum hold time: ");
+                    if (int.TryParse(Console.ReadLine(), out int maxHold))
+                        configManager.HitTimingsMaxHoldTime = maxHold;
+                    else
+                        goto case ConsoleKey.D6;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.D7:
+                    Console.Clear();
+                    Console.Write("Enter new minimum slider hold time: ");
+                    if (int.TryParse(Console.ReadLine(), out int minSliderHold))
+                        configManager.HitTimingsMinSliderHoldTime = minSliderHold;
+                    else
+                        goto case ConsoleKey.D7;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.D8:
+                    Console.Clear();
+                    Console.Write("Enter new maximum slider hold time: ");
+                    if (int.TryParse(Console.ReadLine(), out int maxSliderHold))
+                        configManager.HitTimingsMaxSliderHoldTime = maxSliderHold;
+                    else
+                        goto case ConsoleKey.D8;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.D9:
+                    Console.Clear();
+                    Console.Write("Enter double delay factor: ");
+                    if (float.TryParse(Console.ReadLine(), out float doubleDelayFactor))
+                        configManager.HitTimingsDoubleDelayFactor = doubleDelayFactor;
+                    else
+                        goto case ConsoleKey.D9;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.Escape:
+                    DrawRelaxSettings();
+                    break;
+                default:
+                    DrawHitTimingsSettings();
+                    break;
+            }
+        }
+
         private static void DrawHitScanSettings()
         {
             Console.Clear();
             Console.WriteLine("---HitScan Settings---\n");
             Console.WriteLine($"1. HitScan                | [{(configManager.EnableHitScan ? "ENABLED" : "DISABLED")}]");
             Console.WriteLine($"2. Prediction             | [{(configManager.EnableHitScanPrediction ? "ENABLED" : "DISABLED")}]");
-            Console.WriteLine($"3. Radius multiplier      | [{configManager.HitScanRadiusMultiplier}]");
-            Console.WriteLine($"4. Radius additional      | [{configManager.HitScanRadiusAdditional}]");
-            Console.WriteLine($"5. Max distance           | [{configManager.HitScanMaxDistance}]");
+            Console.WriteLine($"3. Radius multiplier      | [{configManager.HitScanRadiusMultiplier}x]");
+            Console.WriteLine($"4. Radius additional      | [{configManager.HitScanRadiusAdditional}px]");
+            Console.WriteLine($"5. Max distance           | [{configManager.HitScanMaxDistance}px]");
             Console.WriteLine($"6. Miss chance            | [{configManager.HitScanMissChance}%]");
             Console.WriteLine($"7. Miss after HitWindow50 | [{(configManager.HitScanMissAfterHitWindow50 ? "ENABLED" : "DISABLED")}]");
 
@@ -299,42 +412,6 @@ namespace osu_rx
             }
         }
 
-        private static void DrawOtherSettings()
-        {
-            Console.Clear();
-            Console.WriteLine("---Other Settings---\n");
-            Console.WriteLine($"1. Custom window title | [{(configManager.UseCustomWindowTitle ? $"ON | {configManager.CustomWindowTitle}" : "OFF")}]");
-
-            Console.WriteLine("\nESC. Back to settings");
-
-            switch (Console.ReadKey(true).Key)
-            {
-                case ConsoleKey.D1:
-                    Console.Clear();
-                    Console.WriteLine("Use custom window title?\n");
-                    Console.WriteLine("1. Yes");
-                    Console.WriteLine("2. No");
-                    configManager.UseCustomWindowTitle = Console.ReadKey(true).Key == ConsoleKey.D1;
-                    if (configManager.UseCustomWindowTitle)
-                    {
-                        Console.Clear();
-                        Console.Write("Enter new custom window title: ");
-                        configManager.CustomWindowTitle = Console.ReadLine();
-                        Console.Title = configManager.CustomWindowTitle;
-                    }
-                    else
-                        Console.Title = defaultConsoleTitle;
-                    DrawOtherSettings();
-                    break;
-                case ConsoleKey.Escape:
-                    DrawSettings();
-                    break;
-                default:
-                    DrawOtherSettings();
-                    break;
-            }
-        }
-
         private static void DrawTimewarpSettings()
         {
             Console.Clear();
@@ -371,6 +448,42 @@ namespace osu_rx
                     break;
                 default:
                     DrawTimewarpSettings();
+                    break;
+            }
+        }
+
+        private static void DrawOtherSettings()
+        {
+            Console.Clear();
+            Console.WriteLine("---Other Settings---\n");
+            Console.WriteLine($"1. Custom window title | [{(configManager.UseCustomWindowTitle ? $"ON | {configManager.CustomWindowTitle}" : "OFF")}]");
+
+            Console.WriteLine("\nESC. Back to settings");
+
+            switch (Console.ReadKey(true).Key)
+            {
+                case ConsoleKey.D1:
+                    Console.Clear();
+                    Console.WriteLine("Use custom window title?\n");
+                    Console.WriteLine("1. Yes");
+                    Console.WriteLine("2. No");
+                    configManager.UseCustomWindowTitle = Console.ReadKey(true).Key == ConsoleKey.D1;
+                    if (configManager.UseCustomWindowTitle)
+                    {
+                        Console.Clear();
+                        Console.Write("Enter new custom window title: ");
+                        configManager.CustomWindowTitle = Console.ReadLine();
+                        Console.Title = configManager.CustomWindowTitle;
+                    }
+                    else
+                        Console.Title = defaultConsoleTitle;
+                    DrawOtherSettings();
+                    break;
+                case ConsoleKey.Escape:
+                    DrawSettings();
+                    break;
+                default:
+                    DrawOtherSettings();
                     break;
             }
         }

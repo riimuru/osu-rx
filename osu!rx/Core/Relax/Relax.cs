@@ -139,7 +139,7 @@ namespace osu_rx.Core.Relax
                     else
                         currentKey = configManager.PrimaryKey;
 
-                    currentHitTimings = accuracyManager.GetHitObjectTimings(index, alternateResult.HasFlag(AlternateResult.AlternateThisNote), inputSimulator.InputDeviceState.IsKeyDown(configManager.HitWindow100Key));
+                    currentHitTimings = accuracyManager.GetHitObjectTimings(index, alternateResult.HasFlag(AlternateResult.AlternateThisNote), inputSimulator.InputDeviceState.IsKeyDown(configManager.DoubleDelayKey));
                 }
             }
         }
