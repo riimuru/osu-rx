@@ -124,9 +124,10 @@ namespace osu_rx.Core.Relax.Accuracy
             float hitObjectRadius = osuManager.HitObjectRadius(beatmap.CircleSize);
 
             Vector2 hitObjectPosition = hitObject is OsuSlider ? (hitObject as OsuSlider).PositionAtTime(osuManager.CurrentTime) : hitObject.Position;
+            Vector2 cursorPosition = osuManager.WindowManager.ScreenToPlayfield(osuManager.Player.Ruleset.MousePosition);
 
-            float distanceToObject = Vector2.Distance(osuManager.CursorPosition, hitObjectPosition * osuManager.WindowManager.PlayfieldRatio);
-            float distanceToLastPos = Vector2.Distance(osuManager.CursorPosition, lastOnNotePosition ?? Vector2.Zero);
+            float distanceToObject = Vector2.Distance(cursorPosition, hitObjectPosition);
+            float distanceToLastPos = Vector2.Distance(cursorPosition, lastOnNotePosition ?? Vector2.Zero);
 
             if (osuManager.CurrentTime > hitObject.EndTime + hitWindow50)
             {
@@ -145,7 +146,7 @@ namespace osu_rx.Core.Relax.Accuracy
                         return HitScanResult.ShouldHit;
                 }
                 else if (distanceToObject <= hitObjectRadius)
-                    lastOnNotePosition = osuManager.CursorPosition;
+                    lastOnNotePosition = cursorPosition;
             }
 
             if (distanceToObject <= hitObjectRadius)
@@ -160,7 +161,7 @@ namespace osu_rx.Core.Relax.Accuracy
         private bool intersectsWithOtherHitObjects(int startIndex)
         {
             int time = osuManager.CurrentTime;
-            Vector2 cursorPosition = osuManager.CursorPosition;
+            Vector2 cursorPosition = osuManager.WindowManager.ScreenToPlayfield(osuManager.Player.Ruleset.MousePosition);
 
             for (int i = startIndex; i < beatmap.HitObjects.Count; i++)
             {
@@ -170,7 +171,7 @@ namespace osu_rx.Core.Relax.Accuracy
                 if (startTime > time)
                     break;
 
-                float distanceToObject = Vector2.Distance(cursorPosition, hitObject.Position * osuManager.WindowManager.PlayfieldRatio);
+                float distanceToObject = Vector2.Distance(cursorPosition, hitObject.Position);
                 if (distanceToObject <= osuManager.HitObjectRadius(beatmap.CircleSize))
                     return true;
             }

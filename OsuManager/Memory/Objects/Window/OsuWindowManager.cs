@@ -43,5 +43,7 @@ namespace osu.Memory.Objects.Window
         {
             Viewport = new OsuViewport(viewportPointer);
         }
+
+        public Vector2 ScreenToPlayfield(Vector2 screenCoords) => (screenCoords - PlayfieldPosition) / PlayfieldRatio;
     }
 }

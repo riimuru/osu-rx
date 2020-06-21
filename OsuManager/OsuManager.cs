@@ -38,8 +38,6 @@ namespace osu
 
         public OsuModes CurrentMode => (OsuModes)OsuProcess.ReadInt32(modeAddress);
 
-        public Vector2 CursorPosition => Player.Ruleset.MousePosition - WindowManager.PlayfieldPosition;
-
         public bool CanLoad => CurrentMode == OsuModes.Play && Player.IsLoaded && !Player.ReplayMode;
 
         public bool CanPlay => CurrentMode == OsuModes.Play && Player.SingleComponentLoaded;
