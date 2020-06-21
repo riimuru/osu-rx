@@ -153,7 +153,7 @@ namespace osu_rx.Configuration
 
         public float HitTimingsDoubleDelayFactor
         {
-            get => config.GetValue("HitTimingsDoubleDelayFactor", 2);
+            get => config.GetValue("HitTimingsDoubleDelayFactor", 2f);
             set => config.SetValue("HitTimingsDoubleDelayFactor", value);
         }
 
@@ -165,7 +165,7 @@ namespace osu_rx.Configuration
 
         public double TimewarpRate
         {
-            get => config.GetValue("TimewarpRate", 1);
+            get => config.GetValue("TimewarpRate", 1d);
             set => config.SetValue("TimewarpRate", value);
         }
 

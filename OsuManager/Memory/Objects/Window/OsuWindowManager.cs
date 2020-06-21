@@ -29,9 +29,8 @@ namespace osu.Memory.Objects.Window
         {
             get
             {
-                var windowCentre = WindowSize / 2;
-                float x = windowCentre.X - PlayfieldSize.X / 2;
-                float y = windowCentre.Y - PlayfieldSize.Y / 2;
+                float x = (WindowSize.X - PlayfieldSize.X) / 2;
+                float y = (WindowSize.Y - PlayfieldSize.Y) / 4 * 3 + (-16 * WindowRatio);
 
                 return new Vector2(x, y);
             }
@@ -45,5 +44,7 @@ namespace osu.Memory.Objects.Window
         }
 
         public Vector2 ScreenToPlayfield(Vector2 screenCoords) => (screenCoords - PlayfieldPosition) / PlayfieldRatio;
+
+        public Vector2 PlayfieldToScreen(Vector2 playfieldCoords) => (playfieldCoords * PlayfieldRatio) + PlayfieldPosition;
     }
 }
