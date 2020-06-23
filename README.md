@@ -40,7 +40,7 @@ osu!rx and the [framework](OsuManager) it's built on are still heavily under dev
 - .net framework 4.7.2 is required to run osu!rx. You can download it [here](https://dotnet.microsoft.com/download/thank-you/net472).  
 
 ### Important notes
-- If you're using osu!rewrite and changed its executable name, then change it in the *"osu!rewrite.ini"* file too or else osu!rx will not work with osu!rewrite.
+- If you're using osu!rewrite and changed its executable name, then change it in the *"osu!manager.ini"* file too or else osu!rx will not work with osu!rewrite.
 
 - If you plan on changing executable's name, then change the name of *"osu!rx.exe.config"* too or else it will crash.  
 
@@ -66,8 +66,8 @@ Any help is highly appreciated!
   
 ### Areas that need your attention
 Hit Timing randomization and HitScan need improvements and your feedback. Take a look at the code to get started!
-- [Hit Timings randomization](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L66)
-- [HitScan](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L110)
+- [Hit Timings randomization](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L72)
+- [HitScan](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L116)
 
 ## Demonstation video
 ***osu!rx does not affect performance. In this case lags were caused by obs and cute girls in the background.***
