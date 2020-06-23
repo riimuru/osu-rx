@@ -152,7 +152,6 @@ namespace osu_rx.Core.Relax.Accuracy
                     if (lastOnNotePosition.HasValue && nextHitObject != null)
                     {
                         double directionAngle = MathHelper.GetAngle(lastOnNotePosition.Value, cursorPosition, nextHitObjectPosition);
-                        Console.WriteLine(directionAngle);
                         if (directionAngle <= configManager.HitScanPredictionDirectionAngleTolerance || distanceToLastPos <= configManager.HitScanPredictionMaxDistance)
                             return HitScanResult.ShouldHit;
                     }
