@@ -30,6 +30,9 @@ namespace osu_rx.Core.Relax.Accuracy
         private int maxAlternateOffset;
 
         //hitscan
+        private float hitObjectRadius;
+        private float missRadius;
+
         private bool canMiss;
         private int lastHitScanIndex;
         private Vector2? lastOnNotePosition;
@@ -57,6 +60,9 @@ namespace osu_rx.Core.Relax.Accuracy
             maxOffset = calculateTimingOffset(configManager.HitTimingsMaxOffset);
             minAlternateOffset = calculateTimingOffset(configManager.HitTimingsAlternateMinOffset);
             maxAlternateOffset = calculateTimingOffset(configManager.HitTimingsAlternateMaxOffset);
+
+            hitObjectRadius = osuManager.HitObjectRadius(beatmap.CircleSize);
+            missRadius = configManager.HitScanMissRadius;
 
             canMiss = false;
             lastHitScanIndex = -1;
@@ -110,6 +116,7 @@ namespace osu_rx.Core.Relax.Accuracy
         public HitScanResult GetHitScanResult(int index)
         {
             var hitObject = beatmap.HitObjects[index];
+            var nextHitObject = index + 1 < beatmap.HitObjects.Count ? beatmap.HitObjects[index + 1] : null;
 
             if (!configManager.EnableHitScan || hitObject is OsuSpinner)
                 return HitScanResult.CanHit;
@@ -121,13 +128,10 @@ namespace osu_rx.Core.Relax.Accuracy
                 lastOnNotePosition = null;
             }
 
-            float hitObjectRadius = osuManager.HitObjectRadius(beatmap.CircleSize) * osuManager.WindowManager.PlayfieldRatio;
-            float additionalRadius = configManager.HitScanRadiusAdditional * osuManager.WindowManager.PlayfieldRatio;
-
             Vector2 hitObjectPosition = hitObject is OsuSlider ? (hitObject as OsuSlider).PositionAtTime(osuManager.CurrentTime) : hitObject.Position;
-            hitObjectPosition = osuManager.WindowManager.PlayfieldToScreen(hitObjectPosition);
+            Vector2 nextHitObjectPosition = nextHitObject != null ? nextHitObject.Position : Vector2.Zero;
 
-            Vector2 cursorPosition = osuManager.Player.Ruleset.MousePosition;
+            Vector2 cursorPosition = osuManager.WindowManager.ScreenToPlayfield(osuManager.Player.Ruleset.MousePosition);
 
             float distanceToObject = Vector2.Distance(cursorPosition, hitObjectPosition);
             float distanceToLastPos = Vector2.Distance(cursorPosition, lastOnNotePosition ?? Vector2.Zero);
@@ -135,7 +139,7 @@ namespace osu_rx.Core.Relax.Accuracy
             if (osuManager.CurrentTime > hitObject.EndTime + hitWindow50)
             {
                 if (configManager.HitScanMissAfterHitWindow50)
-                    if (distanceToObject <= hitObjectRadius + additionalRadius && !intersectsWithOtherHitObjects(index + 1))
+                    if (distanceToObject <= hitObjectRadius + missRadius && !intersectsWithOtherHitObjects(index + 1))
                         return HitScanResult.ShouldHit;
 
                 return HitScanResult.MoveToNextObject;
@@ -143,19 +147,26 @@ namespace osu_rx.Core.Relax.Accuracy
 
             if (configManager.EnableHitScanPrediction)
             {
-                if (distanceToObject > hitObjectRadius * configManager.HitScanRadiusMultiplier)
+                if (distanceToObject > hitObjectRadius * configManager.HitScanPredictionRadiusScale && distanceToObject <= hitObjectRadius)
                 {
-                    if (lastOnNotePosition != null && distanceToLastPos <= configManager.HitScanMaxDistance)
-                        return HitScanResult.ShouldHit;
+                    if (lastOnNotePosition.HasValue && nextHitObject != null)
+                    {
+                        double directionAngle = MathHelper.GetAngle(lastOnNotePosition.Value, cursorPosition, nextHitObjectPosition);
+                        Console.WriteLine(directionAngle);
+                        if (directionAngle <= configManager.HitScanPredictionDirectionAngleTolerance || distanceToLastPos <= configManager.HitScanPredictionMaxDistance)
+                            return HitScanResult.ShouldHit;
+                    }
                 }
                 else if (distanceToObject <= hitObjectRadius)
                     lastOnNotePosition = cursorPosition;
+                else
+                    lastOnNotePosition = null;
             }
 
             if (distanceToObject <= hitObjectRadius)
                 return HitScanResult.CanHit;
 
-            if (canMiss && distanceToObject <= hitObjectRadius + additionalRadius && !intersectsWithOtherHitObjects(index + 1))
+            if (canMiss && distanceToObject <= hitObjectRadius + missRadius && !intersectsWithOtherHitObjects(index + 1))
                 return HitScanResult.CanHit;
 
             return HitScanResult.Wait;
@@ -166,8 +177,7 @@ namespace osu_rx.Core.Relax.Accuracy
             int time = osuManager.CurrentTime;
             double preEmpt = osuManager.DifficultyRange(beatmap.ApproachRate, 1800, 1200, 450);
 
-            float hitObjectRadius = osuManager.HitObjectRadius(beatmap.CircleSize) * osuManager.WindowManager.PlayfieldRatio;
-            Vector2 cursorPosition = osuManager.Player.Ruleset.MousePosition;
+            Vector2 cursorPosition = osuManager.WindowManager.ScreenToPlayfield(osuManager.Player.Ruleset.MousePosition);
 
             for (int i = startIndex; i < beatmap.HitObjects.Count; i++)
             {
@@ -177,8 +187,7 @@ namespace osu_rx.Core.Relax.Accuracy
                 if (startTime > time)
                     break;
 
-                Vector2 hitObjectPosition = osuManager.WindowManager.PlayfieldToScreen(hitObject.Position);
-                float distanceToObject = Vector2.Distance(cursorPosition, hitObjectPosition);
+                float distanceToObject = Vector2.Distance(cursorPosition, hitObject.Position);
                 if (distanceToObject <= hitObjectRadius)
                     return true;
             }

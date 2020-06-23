@@ -69,26 +69,32 @@ namespace osu_rx.Configuration
 
         public bool EnableHitScanPrediction
         {
-            get => config.GetValue("HitscanEnablePrediction", true);
-            set => config.SetValue("HitscanEnablePrediction", value);
+            get => config.GetValue("HitScanEnablePrediction", true);
+            set => config.SetValue("HitScanEnablePrediction", value);
         }
 
-        public float HitScanRadiusMultiplier
+        public int HitScanPredictionDirectionAngleTolerance
         {
-            get => config.GetValue<float>("HitscanRadiusMultiplier", 0.9f);
-            set => config.SetValue<float>("HitscanRadiusMultiplier", value);
+            get => config.GetValue("HitScanPredictionDirectionAngleTolerance", 25);
+            set => config.SetValue("HitScanPredictionDirectionAngleTolerance", value);
         }
 
-        public int HitScanRadiusAdditional
+        public float HitScanPredictionRadiusScale
         {
-            get => config.GetValue("HitscanRadiusAdditional", 50);
-            set => config.SetValue("HitscanRadiusAdditional", value);
+            get => config.GetValue("HitScanPredictionRadiusScale", 0.8f);
+            set => config.SetValue("HitScanPredictionRadiusScale", value);
         }
 
-        public int HitScanMaxDistance
+        public int HitScanPredictionMaxDistance
         {
-            get => config.GetValue("HitscanMaxDistance", 30);
-            set => config.SetValue("HitscanMaxDistance", value);
+            get => config.GetValue("HitScanPredictionMaxDistance", 30);
+            set => config.SetValue("HitScanPredictionMaxDistance", value);
+        }
+
+        public int HitScanMissRadius
+        {
+            get => config.GetValue("HitScanMissRadius", 50);
+            set => config.SetValue("HitScanMissRadius", value);
         }
 
         public int HitScanMissChance

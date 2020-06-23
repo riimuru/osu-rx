@@ -343,13 +343,14 @@ namespace osu_rx
         {
             Console.Clear();
             Console.WriteLine("---HitScan Settings---\n");
-            Console.WriteLine($"1. HitScan                | [{(configManager.EnableHitScan ? "ENABLED" : "DISABLED")}]");
-            Console.WriteLine($"2. Prediction             | [{(configManager.EnableHitScanPrediction ? "ENABLED" : "DISABLED")}]");
-            Console.WriteLine($"3. Radius multiplier      | [{configManager.HitScanRadiusMultiplier}x]");
-            Console.WriteLine($"4. Radius additional      | [{configManager.HitScanRadiusAdditional}px]");
-            Console.WriteLine($"5. Max distance           | [{configManager.HitScanMaxDistance}px]");
-            Console.WriteLine($"6. Miss chance            | [{configManager.HitScanMissChance}%]");
-            Console.WriteLine($"7. Miss after HitWindow50 | [{(configManager.HitScanMissAfterHitWindow50 ? "ENABLED" : "DISABLED")}]");
+            Console.WriteLine($"1. HitScan                              | [{(configManager.EnableHitScan ? "ENABLED" : "DISABLED")}]");
+            Console.WriteLine($"2. Prediction                           | [{(configManager.EnableHitScanPrediction ? "ENABLED" : "DISABLED")}]");
+            Console.WriteLine($"3. Prediction direction angle tolerance | [{configManager.HitScanPredictionDirectionAngleTolerance}°]");
+            Console.WriteLine($"4. Prediction radius scale              | [{configManager.HitScanPredictionRadiusScale}x]");
+            Console.WriteLine($"5. Prediction max distance              | [{configManager.HitScanPredictionMaxDistance}px]");
+            Console.WriteLine($"6. Miss radius                          | [{configManager.HitScanMissRadius}px]");
+            Console.WriteLine($"7. Miss chance                          | [{configManager.HitScanMissChance}%]");
+            Console.WriteLine($"8. Miss after HitWindow50               | [{(configManager.HitScanMissAfterHitWindow50 ? "ENABLED" : "DISABLED")}]");
 
             Console.WriteLine("\nESC. Back to relax settings");
 
@@ -365,18 +366,18 @@ namespace osu_rx
                     break;
                 case ConsoleKey.D3:
                     Console.Clear();
-                    Console.Write("Enter new radius multiplier: ");
-                    if (float.TryParse(Console.ReadLine(), out float multiplier))
-                        configManager.HitScanRadiusMultiplier = multiplier;
+                    Console.Write("Enter new direction angle tolerance: ");
+                    if (int.TryParse(Console.ReadLine(), out int angleTolerance))
+                        configManager.HitScanPredictionDirectionAngleTolerance = angleTolerance;
                     else
                         goto case ConsoleKey.D3;
                     DrawHitScanSettings();
                     break;
                 case ConsoleKey.D4:
                     Console.Clear();
-                    Console.Write("Enter new radius additional: ");
-                    if (int.TryParse(Console.ReadLine(), out int additional))
-                        configManager.HitScanRadiusAdditional = additional;
+                    Console.Write("Enter new radius scale: ");
+                    if (float.TryParse(Console.ReadLine(), out float scale))
+                        configManager.HitScanPredictionRadiusScale = scale;
                     else
                         goto case ConsoleKey.D4;
                     DrawHitScanSettings();
@@ -385,21 +386,30 @@ namespace osu_rx
                     Console.Clear();
                     Console.Write("Enter new max distance: ");
                     if (int.TryParse(Console.ReadLine(), out int maxDistance))
-                        configManager.HitScanMaxDistance = maxDistance;
+                        configManager.HitScanPredictionMaxDistance = maxDistance;
                     else
                         goto case ConsoleKey.D5;
                     DrawHitScanSettings();
                     break;
                 case ConsoleKey.D6:
                     Console.Clear();
-                    Console.Write("Enter new miss chance: ");
-                    if (int.TryParse(Console.ReadLine(), out int missChance))
-                        configManager.HitScanMissChance = missChance;
+                    Console.Write("Enter new miss radius: ");
+                    if (int.TryParse(Console.ReadLine(), out int missRadius))
+                        configManager.HitScanMissRadius = missRadius;
                     else
                         goto case ConsoleKey.D6;
                     DrawHitScanSettings();
                     break;
                 case ConsoleKey.D7:
+                    Console.Clear();
+                    Console.Write("Enter new miss chance: ");
+                    if (int.TryParse(Console.ReadLine(), out int missChance))
+                        configManager.HitScanMissChance = missChance;
+                    else
+                        goto case ConsoleKey.D7;
+                    DrawHitScanSettings();
+                    break;
+                case ConsoleKey.D8:
                     configManager.HitScanMissAfterHitWindow50 = !configManager.HitScanMissAfterHitWindow50;
                     DrawHitScanSettings();
                     break;
