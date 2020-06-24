@@ -5,6 +5,7 @@ using osu_rx.Core.Relax;
 using osu_rx.Core.Timewarp;
 using SimpleDependencyInjection;
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,9 +17,22 @@ namespace osu_rx
     {
         private static OsuManager osuManager;
         private static ConfigManager configManager;
+
         private static Relax relax;
         private static Timewarp timewarp;
+
         private static string defaultConsoleTitle;
+
+        private static string[] links = new string[]
+        {
+            "https://ko-fi.com/mrflashstudio",
+            "https://www.buymeacoffee.com/mrflashstudio",
+            "https://www.paypal.me/mrflashstudio",
+            "https://qiwi.com/n/mrflashstudio",
+            "https://github.com/mrflashstudio/osu-rx",
+            "https://www.mpgh.net/forum/showthread.php?t=1488076",
+            "https://discord.gg/q3vS9yp",
+        };
 
         static void Main(string[] args)
         {
@@ -62,7 +76,12 @@ namespace osu_rx
             Console.WriteLine($"osu!rx v{version} (MPGH release)");
             Console.WriteLine("\n---Main Menu---");
             Console.WriteLine("\n1. Start");
-            Console.WriteLine("2. Settings");
+            Console.WriteLine("2. Settings\n");
+            Console.WriteLine("---------------\n");
+            Console.WriteLine("3. I need help!");
+            Console.WriteLine("4. Support development of osu!rx\n");
+            Console.WriteLine("---------------\n");
+            Console.WriteLine($"Join our discord server! https://discord.gg/q3vS9yp");
 
             switch (Console.ReadKey(true).Key)
             {
@@ -72,10 +91,64 @@ namespace osu_rx
                 case ConsoleKey.D2:
                     DrawSettings();
                     break;
+                case ConsoleKey.D3:
+                    DrawHelpInfo();
+                    break;
+                case ConsoleKey.D4:
+                    DrawSupportInfo();
+                    break;
                 default:
                     DrawMainMenu();
                     break;
             }
+        }
+
+        private static void DrawPlayer()
+        {
+            bool shouldExit = false;
+            Task.Run(() =>
+            {
+                while (Console.ReadKey(true).Key != ConsoleKey.Escape) ;
+
+                shouldExit = true;
+                relax.Stop();
+                timewarp.Stop();
+            });
+
+            while (!shouldExit)
+            {
+                Console.Clear();
+                Console.WriteLine("Idling");
+                Console.WriteLine("\nPress ESC to return to the main menu.");
+
+                while (!osuManager.CanLoad && !shouldExit)
+                    Thread.Sleep(5);
+
+                if (shouldExit)
+                    break;
+
+                var beatmap = osuManager.Player.Beatmap;
+
+                Console.Clear();
+                Console.WriteLine($"Playing {beatmap.Artist} - {beatmap.Title} ({beatmap.Creator}) [{beatmap.Version}]");
+                Console.WriteLine("\nPress ESC to return to the main menu.");
+
+                var relaxTask = Task.Factory.StartNew(() =>
+                {
+                    if (configManager.EnableRelax && osuManager.Player.CurrentRuleset == Ruleset.Standard)
+                        relax.Start(beatmap);
+                });
+
+                var timewarpTask = Task.Factory.StartNew(() =>
+                {
+                    if (configManager.EnableTimewarp)
+                        timewarp.Start();
+                });
+
+                Task.WaitAll(relaxTask, timewarpTask);
+            }
+
+            DrawMainMenu();
         }
 
         private static void DrawSettings()
@@ -498,52 +571,54 @@ namespace osu_rx
             }
         }
 
-        private static void DrawPlayer()
+        private static void DrawHelpInfo()
         {
-            bool shouldExit = false;
-            Task.Run(() =>
-            {
-                while (Console.ReadKey(true).Key != ConsoleKey.Escape) ;
+            Console.Clear();
+            Console.WriteLine("---I need assistance! What should i do?---\n");
+            Console.WriteLine("You can ask for help in either MPGH or Discord.");
+            Console.WriteLine("Select one of these below.\n");
+            Console.WriteLine("1. Ask for help on MPGH");
+            Console.WriteLine("2. Ask for help on Discord");
 
-                shouldExit = true;
-                relax.Stop();
-                timewarp.Stop();
-            });
+            Console.WriteLine("\nESC. Back to settings");
 
-            while (!shouldExit)
-            {
-                Console.Clear();
-                Console.WriteLine("Idling");
-                Console.WriteLine("\nPress ESC to return to the main menu.");
+            var key = Console.ReadKey(true).Key;
+            if (key == ConsoleKey.D1 || key == ConsoleKey.D2)
+                Process.Start(links[key - ConsoleKey.D1 + 5]);
+            else if (key == ConsoleKey.Escape)
+                DrawMainMenu();
 
-                while (!osuManager.CanLoad && !shouldExit)
-                    Thread.Sleep(5);
+            DrawHelpInfo();
+        }
 
-                if (shouldExit)
-                    break;
+        private static void DrawSupportInfo()
+        {
+            Console.Clear();
+            Console.WriteLine("---What can i do to help osu!rx?---\n");
+            Console.WriteLine("Glad you're interested!\n");
+            Console.WriteLine("If you like what i'm doing and are willing to support me financially - consider becoming a supporter!");
+            Console.WriteLine("Select any service below to proceed.\n");
+            Console.WriteLine("1. Ko-fi");
+            Console.WriteLine("2. Buy Me A Coffee");
+            Console.WriteLine("3. PayPal");
+            Console.WriteLine("4. Qiwi\n");
 
-                var beatmap = osuManager.Player.Beatmap;
+            Console.WriteLine("If you can't or don't want to support me financially - that's totally fine!");
+            Console.WriteLine("You can still help me by providing any feedback, reporting bugs, creating pull requests and requesting features!");
+            Console.WriteLine("Any help is highly appreciated!\n");
+            Console.WriteLine("5. Provide feedback via GitHub");
+            Console.WriteLine("6. Provide feedback via MPGH");
+            Console.WriteLine("7. Provide feedback via Discord");
 
-                Console.Clear();
-                Console.WriteLine($"Playing {beatmap.Artist} - {beatmap.Title} ({beatmap.Creator}) [{beatmap.Version}]");
-                Console.WriteLine("\nPress ESC to return to the main menu.");
+            Console.WriteLine("\nESC. Back to settings");
 
-                var relaxTask = Task.Factory.StartNew(() =>
-                {
-                    if (configManager.EnableRelax && osuManager.Player.CurrentRuleset == Ruleset.Standard)
-                        relax.Start(beatmap);
-                });
+            var key = Console.ReadKey(true).Key;
+            if (key >= ConsoleKey.D1 && key <= ConsoleKey.D7)
+                Process.Start(links[key - ConsoleKey.D1]);
+            else if (key == ConsoleKey.Escape)
+                DrawMainMenu();
 
-                var timewarpTask = Task.Factory.StartNew(() =>
-                {
-                    if (configManager.EnableTimewarp)
-                        timewarp.Start();
-                });
-
-                Task.WaitAll(relaxTask, timewarpTask);
-            }
-
-            DrawMainMenu();
+            DrawSupportInfo();
         }
     }
 }
