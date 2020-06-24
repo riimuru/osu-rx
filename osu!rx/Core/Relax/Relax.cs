@@ -160,10 +160,12 @@ namespace osu_rx.Core.Relax
             var lastHitObject = index > 0 ? beatmap.HitObjects[index - 1] : null;
             var nextHitObject = index + 1 < beatmap.HitObjects.Count ? beatmap.HitObjects[index + 1] : null;
 
-            if (lastHitObject != null && (currentHitObject.StartTime - lastHitObject.EndTime) < maxDiff)
+            var binding = configManager.SliderAlternationBinding;
+
+            if (lastHitObject != null && (currentHitObject.StartTime - (lastHitObject is OsuSlider && binding == SliderAlternationBinding.StartTime ? lastHitObject.StartTime : lastHitObject.EndTime)) < maxDiff)
                 result += (int)AlternateResult.AlternateThisNote;
 
-            if (nextHitObject != null && (nextHitObject.StartTime - currentHitObject.EndTime) < maxDiff)
+            if (nextHitObject != null && (nextHitObject.StartTime - (currentHitObject is OsuSlider && binding == SliderAlternationBinding.StartTime ? currentHitObject.StartTime : currentHitObject.EndTime)) < maxDiff)
                 result += (int)AlternateResult.AlternateNextNote;
 
             return result;

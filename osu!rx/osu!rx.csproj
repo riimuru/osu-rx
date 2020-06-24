@@ -60,6 +60,7 @@
     <Compile Include="Configuration\ConfigManager.cs" />
     <Compile Include="Configuration\OsuKeys.cs" />
     <Compile Include="Configuration\Playstyles.cs" />
+    <Compile Include="Configuration\SliderAlternationBinding.cs" />
     <Compile Include="Core\Relax\Accuracy\AccuracyManager.cs" />
     <Compile Include="Core\Relax\Accuracy\HitObjectTimings.cs" />
     <Compile Include="Core\Relax\Accuracy\HitScanResult.cs" />

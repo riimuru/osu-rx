@@ -185,15 +185,16 @@ namespace osu_rx
         {
             Console.Clear();
             Console.WriteLine("---Relax Settings---\n");
-            Console.WriteLine($"1. Relax                    | [{(configManager.EnableRelax ? "ENABLED" : "DISABLED")}]");
-            Console.WriteLine($"2. Playstyle                | [{configManager.PlayStyle}]");
-            Console.WriteLine($"3. Primary key              | [{configManager.PrimaryKey}]");
-            Console.WriteLine($"4. Secondary key            | [{configManager.SecondaryKey}]");
-            Console.WriteLine($"5. Double delay key         | [{configManager.DoubleDelayKey}]");
-            Console.WriteLine($"6. Max singletap BPM        | [{configManager.MaxSingletapBPM}BPM]");
-            Console.WriteLine($"7. AlternateIfLessThan      | [{configManager.AlternateIfLessThan}ms]");
-            Console.WriteLine($"8. Audio offset             | [{configManager.AudioOffset}ms]");
-            Console.WriteLine($"9. HoldBeforeSpinner time   | [{configManager.HoldBeforeSpinnerTime}ms]");
+            Console.WriteLine($"1. Relax                      | [{(configManager.EnableRelax ? "ENABLED" : "DISABLED")}]");
+            Console.WriteLine($"2. Playstyle                  | [{configManager.PlayStyle}]");
+            Console.WriteLine($"3. Primary key                | [{configManager.PrimaryKey}]");
+            Console.WriteLine($"4. Secondary key              | [{configManager.SecondaryKey}]");
+            Console.WriteLine($"5. Double delay key           | [{configManager.DoubleDelayKey}]");
+            Console.WriteLine($"6. Max singletap BPM          | [{configManager.MaxSingletapBPM}BPM]");
+            Console.WriteLine($"7. AlternateIfLessThan        | [{configManager.AlternateIfLessThan}ms]");
+            Console.WriteLine($"8. Slider alternation binding | [{configManager.SliderAlternationBinding}]");
+            Console.WriteLine($"9. Audio offset               | [{configManager.AudioOffset}ms]");
+            Console.WriteLine($"0. HoldBeforeSpinner time     | [{configManager.HoldBeforeSpinnerTime}ms]");
 
             Console.WriteLine($"\nQ. HitTimings settings");
             Console.WriteLine($"W. Hitscan settings");
@@ -201,6 +202,7 @@ namespace osu_rx
             Console.WriteLine("\nESC. Back to settings");
 
             OsuKeys[] osuKeys = (OsuKeys[])Enum.GetValues(typeof(OsuKeys));
+            SliderAlternationBinding[] sliderBindings = (SliderAlternationBinding[])Enum.GetValues(typeof(SliderAlternationBinding));
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.D1:
@@ -273,20 +275,31 @@ namespace osu_rx
                     break;
                 case ConsoleKey.D8:
                     Console.Clear();
-                    Console.Write("Enter new audio offset: ");
-                    if (int.TryParse(Console.ReadLine(), out int offset))
-                        configManager.AudioOffset = offset;
+                    Console.WriteLine("Select new slider alternation binding:\n");
+                    for (int i = 0; i < sliderBindings.Length; i++)
+                        Console.WriteLine($"{i + 1}. {sliderBindings[i]}");
+                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int sliderBinding) && sliderBinding > 0 && sliderBinding < 2)
+                        configManager.SliderAlternationBinding = (SliderAlternationBinding)sliderBinding - 1;
                     else
                         goto case ConsoleKey.D8;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.D9:
                     Console.Clear();
+                    Console.Write("Enter new audio offset: ");
+                    if (int.TryParse(Console.ReadLine(), out int offset))
+                        configManager.AudioOffset = offset;
+                    else
+                        goto case ConsoleKey.D9;
+                    DrawRelaxSettings();
+                    break;
+                case ConsoleKey.D0:
+                    Console.Clear();
                     Console.Write("Enter new HoldBeforeSpinner time: ");
                     if (int.TryParse(Console.ReadLine(), out int holdBeforeSpinnerTime))
                         configManager.HoldBeforeSpinnerTime = holdBeforeSpinnerTime;
                     else
-                        goto case ConsoleKey.D9;
+                        goto case ConsoleKey.D0;
                     DrawRelaxSettings();
                     break;
                 case ConsoleKey.Q:

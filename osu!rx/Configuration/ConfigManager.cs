@@ -49,6 +49,12 @@ namespace osu_rx.Configuration
             set => config.SetValue("RelaxAlternateIfLessThan", value);
         }
 
+        public SliderAlternationBinding SliderAlternationBinding
+        {
+            get => config.GetValue("SliderAlternationBinding", SliderAlternationBinding.EndTime);
+            set => config.SetValue("SliderAlternationBinding", value);
+        }
+
         public int AudioOffset
         {
             get => config.GetValue("RelaxAudioOffset", 0);
