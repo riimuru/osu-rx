@@ -12,8 +12,8 @@ namespace osu.Memory.Objects.Player
                 UIntPtr catcherAddress = (UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x8C);
 
                 bool isCtb = OsuProcess.ReadFloat(BaseAddress + 0x50) == 340;
-                float x = OsuProcess.ReadFloat(isCtb ? catcherAddress + 0x4C : BaseAddress + 0x7C);
-                float y = OsuProcess.ReadFloat(isCtb ? catcherAddress + 0x50 : BaseAddress + 0x80);
+                float x = OsuProcess.ReadFloat(isCtb ? catcherAddress + 0x4C : BaseAddress + 0x80);
+                float y = OsuProcess.ReadFloat(isCtb ? catcherAddress + 0x50 : BaseAddress + 0x84);
 
                 return new Vector2(x, y);
             }

@@ -3,6 +3,7 @@ using osu.Enums.Beatmaps;
 using osu.Memory.Objects.Player.Beatmaps.Objects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace osu.Memory.Objects.Player
@@ -31,15 +32,20 @@ namespace osu.Memory.Objects.Player
         {
             get
             {
+                bool isAddressValid(UIntPtr address) => address != UIntPtr.Zero && OsuProcess.ReadInt32(address) != 0;
+
                 var hitObjects = new List<OsuHitObject>();
 
                 UIntPtr hitObjectListItemsPointer() => (UIntPtr)OsuProcess.ReadUInt32((UIntPtr)OsuProcess.ReadUInt32(BaseAddress + 0x48) + 0x4);
 
                 for (int i = 0; i < HitObjectsCount; i++)
                 {
+                    start:
                     OsuHitObject hitObject = null;
 
                     UIntPtr hitObjectPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectListItemsPointer() + 0x8 + 0x4 * i);
+                    if (!isAddressValid(hitObjectPointer))
+                        goto start;
 
                     HitObjectType type = (HitObjectType)OsuProcess.ReadInt32(hitObjectPointer + 0x18);
                     type &= ~HitObjectType.ComboOffset;
@@ -61,11 +67,14 @@ namespace osu.Memory.Objects.Player
                             UIntPtr sliderCurveSmoothLinesPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectPointer + 0xC4);
                             UIntPtr cumulativeLengthsPointer = (UIntPtr)OsuProcess.ReadUInt32(hitObjectPointer + 0xC8);
 
-                            if (sliderCurveSmoothLinesPointer == UIntPtr.Zero || cumulativeLengthsPointer == UIntPtr.Zero)
-                                goto case HitObjectType.Slider;
+                            if (!isAddressValid(sliderCurveSmoothLinesPointer) || !isAddressValid(cumulativeLengthsPointer))
+                                goto start;
 
                             UIntPtr sliderCurveSmoothLinesItems = (UIntPtr)OsuProcess.ReadUInt32(sliderCurveSmoothLinesPointer + 0x4);
                             UIntPtr cumulativeLengthsItems = (UIntPtr)OsuProcess.ReadUInt32(cumulativeLengthsPointer + 0x4);
+
+                            if (!isAddressValid(sliderCurveSmoothLinesItems) || !isAddressValid(cumulativeLengthsItems))
+                                goto start;
 
                             int sliderCurveSmoothLinesCount = OsuProcess.ReadInt32(sliderCurveSmoothLinesPointer + 0xC);
                             int cumulativeLengthsCount = OsuProcess.ReadInt32(sliderCurveSmoothLinesPointer + 0xC);

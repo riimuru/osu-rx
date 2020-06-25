@@ -8,7 +8,7 @@ namespace osu.Memory.Objects.Player
 {
     public class OsuPlayer : OsuObject
     {
-        private bool asyncLoadComplete => OsuProcess.ReadBool(BaseAddress + 0x186);
+        private bool asyncLoadComplete => OsuProcess.ReadBool(BaseAddress + 0x182);
 
         public override bool IsLoaded => base.IsLoaded && asyncLoadComplete;
 
@@ -63,12 +63,12 @@ namespace osu.Memory.Objects.Player
 
         public Ruleset CurrentRuleset => (Ruleset)OsuProcess.ReadInt32(BaseAddress + 0x114);
 
-        public bool ReplayMode => OsuProcess.ReadBool(BaseAddress + 0x17E);
+        public bool ReplayMode => OsuProcess.ReadBool(BaseAddress + 0x17A);
 
         public int AudioCheckCount
         {
-            get => OsuProcess.ReadInt32(BaseAddress + 0x150);
-            set => OsuProcess.WriteMemory(BaseAddress + 0x150, BitConverter.GetBytes(value), sizeof(int));
+            get => OsuProcess.ReadInt32(BaseAddress + 0x14C);
+            set => OsuProcess.WriteMemory(BaseAddress + 0x14C, BitConverter.GetBytes(value), sizeof(int));
         }
     }
 }
