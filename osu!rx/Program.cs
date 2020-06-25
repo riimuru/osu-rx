@@ -278,7 +278,7 @@ namespace osu_rx
                     Console.WriteLine("Select new slider alternation binding:\n");
                     for (int i = 0; i < sliderBindings.Length; i++)
                         Console.WriteLine($"{i + 1}. {sliderBindings[i]}");
-                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int sliderBinding) && sliderBinding > 0 && sliderBinding < 2)
+                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int sliderBinding) && sliderBinding > 0 && sliderBinding < 3)
                         configManager.SliderAlternationBinding = (SliderAlternationBinding)sliderBinding - 1;
                     else
                         goto case ConsoleKey.D8;

@@ -156,7 +156,8 @@ namespace osu_rx.Core.Relax.Accuracy
                             return HitScanResult.ShouldHit;
                     }
                 }
-                else if (distanceToObject <= hitObjectRadius)
+
+                if (distanceToObject <= hitObjectRadius * configManager.HitScanPredictionRadiusScale)
                     lastOnNotePosition = cursorPosition;
                 else
                     lastOnNotePosition = null;
