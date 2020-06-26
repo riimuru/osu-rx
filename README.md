@@ -1,6 +1,8 @@
 # osu-rx [![CodeFactor](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx/badge?style=for-the-badge)](https://www.codefactor.io/repository/github/mrflashstudio/osu-rx) [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/mrflashstudio) [![discord server](https://discordapp.com/api/guilds/725077972075151430/widget.png?style=shield)](https://discord.gg/q3vS9yp)
 osu!standard relax hack
 
+Join official discord server! https://discord.gg/q3vS9yp
+
 ## Status
 osu!rx and the [framework](OsuManager) it's built on are still heavily under development.  
 
@@ -24,7 +26,7 @@ osu!rx and the [framework](OsuManager) it's built on are still heavily under dev
 
 ## Running osu!rx
 **Download latest build from one of the sources below:**  
-| [MPGH (every build is approved by forum admin)](https://www.mpgh.net/forum/showthread.php?t=1488076) | [Latest GitHub test build](https://github.com/mrflashstudio/osu-rx/releases/latest) |
+| [MPGH (every build is approved by forum admin)](https://www.mpgh.net/forum/showthread.php?t=1488076) | GitHub builds will be available soon! |
 |-----------------------------------------------|-----------|  
 
 *Paranoids can compile source code themselves ;)*
@@ -67,7 +69,7 @@ Any help is highly appreciated!
 ### Areas that need your attention
 Hit Timing randomization and HitScan need improvements and your feedback. Take a look at the code to get started!
 - [Hit Timings randomization](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L72)
-- [HitScan](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L116)
+- [HitScan](osu!rx/Core/Relax/Accuracy/AccuracyManager.cs#L117)
 
 ## Demonstation video
 ***osu!rx does not affect performance. In this case lags were caused by obs and cute girls in the background.***
