@@ -88,8 +88,9 @@ namespace osu_rx.Core.Relax.Accuracy
             }
             else
             {
-                int maxHoldTime = (int)(configManager.HitTimingsMaxSliderHoldTime * audioRate);
-                int holdTime = random.Next(configManager.HitTimingsMinHoldTime, maxHoldTime);
+                int minHoldTime = (int)(configManager.HitTimingsMinHoldTime * audioRate);
+                int maxHoldTime = (int)(configManager.HitTimingsMaxHoldTime * audioRate);
+                int holdTime = random.Next(minHoldTime, maxHoldTime);
 
                 result.HoldTime = MathHelper.Clamp(holdTime, 0, maxHoldTime);
             }
