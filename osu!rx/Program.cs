@@ -77,7 +77,6 @@ namespace osu_rx
             Console.WriteLine("\n---Main Menu---");
             Console.WriteLine("\n1. Start");
             Console.WriteLine("2. Settings\n");
-            Console.WriteLine("---------------\n");
             Console.WriteLine("3. I need help!");
             Console.WriteLine("4. Support development of osu!rx\n");
             Console.WriteLine("---------------\n");
@@ -588,8 +587,10 @@ namespace osu_rx
         {
             Console.Clear();
             Console.WriteLine("---I need assistance! What should i do?---\n");
-            Console.WriteLine("You can ask for help in either MPGH or Discord.");
+
+            Console.WriteLine("You can ask for help on either MPGH or Discord.");
             Console.WriteLine("Select one of these below.\n");
+
             Console.WriteLine("1. Ask for help on MPGH");
             Console.WriteLine("2. Ask for help on Discord");
 
@@ -608,20 +609,29 @@ namespace osu_rx
         {
             Console.Clear();
             Console.WriteLine("---What can i do to help osu!rx?---\n");
+
             Console.WriteLine("Glad you're interested!\n");
-            Console.WriteLine("If you like what i'm doing and are willing to support me financially - consider becoming a supporter!");
+
+            Console.WriteLine("-----------------------------------\n");
+
+            Console.WriteLine("If you like what i'm doing and are willing to support me financially - consider becoming a sponsor <3!");
             Console.WriteLine("Select any service below to proceed.\n");
+
             Console.WriteLine("1. Ko-fi");
             Console.WriteLine("2. Buy Me A Coffee");
             Console.WriteLine("3. PayPal");
             Console.WriteLine("4. Qiwi\n");
+
+            Console.WriteLine("-----------------------------------\n");
 
             Console.WriteLine("If you can't or don't want to support me financially - that's totally fine!");
             Console.WriteLine("You can still help me by providing any feedback, reporting bugs, creating pull requests and requesting features!");
             Console.WriteLine("Any help is highly appreciated!\n");
             Console.WriteLine("5. Provide feedback via GitHub");
             Console.WriteLine("6. Provide feedback via MPGH");
-            Console.WriteLine("7. Provide feedback via Discord");
+            Console.WriteLine("7. Provide feedback via Discord\n");
+
+            Console.WriteLine("-----------------------------------");
 
             Console.WriteLine("\nESC. Back to settings");
 
