@@ -54,8 +54,8 @@ osu!rx and the [framework](OsuManager) it's built on are still heavily under dev
    ![s](https://i.ibb.co/jZY8fk0/image.png)
 
 ## Detection state
-**Relax:** undetected  
-**Timewarp:** partially **detected**. Bancho (and probably any other server) can't detect it and auto-restrict you. But third party anticheats, such as firedigger's replay analyzer and circleguard will detect timewarp presence.
+**Relax:** detected  
+**Timewarp:** detected
 
 ## What can i do to help osu!rx?
 If you like what i'm doing and are willing to support me financially - consider becoming a sponsor!  
