@@ -26,11 +26,6 @@ osu!rx and the [framework](OsuManager) it's built on are still heavily under dev
 - **[osu!rewrite](https://github.com/xxCherry/osu-rewrite) support:** osu!rx is the first [osu!rewrite](https://github.com/xxCherry/osu-rewrite)-compatible hack ever!
 
 ## Running osu!rx
-**What's this green button at the top of the page? Should i click it?**  
-If you can read, then you can tell that it clearly says "code".  
-Are you a programmer? Do you want to contribute/compile the source code yourself? No? Then don't even look at this button.  
-Seek for other download sources below.  
-
 **Download latest build from one of the sources below:**  
 | [MPGH (every build is approved by forum admin)](https://www.mpgh.net/forum/showthread.php?t=1488076) | GitHub builds will be available soon! |
 |-----------------------------------------------|-----------|  
