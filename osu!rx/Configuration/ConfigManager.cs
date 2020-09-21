@@ -169,6 +169,12 @@ namespace osu_rx.Configuration
             set => config.SetValue("HitTimingsDoubleDelayFactor", value);
         }
 
+        public bool HitTimingsUseFallbackTimingSystem
+        {
+            get => config.GetValue("HitTimingsUseFallbackTimingSystem", false);
+            set => config.SetValue("HitTimingsUseFallbackTimingSystem", value);
+        }
+
         public bool EnableTimewarp
         {
             get => config.GetValue("EnableTimewarp", false);

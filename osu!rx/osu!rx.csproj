@@ -69,6 +69,7 @@
     <Compile Include="Core\Timewarp\Timewarp.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\MathHelper.cs" />
+    <Compile Include="Helpers\TimingHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

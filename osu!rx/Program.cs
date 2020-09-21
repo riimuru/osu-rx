@@ -81,6 +81,10 @@ namespace osu_rx
             Console.WriteLine("4. Support development of osu!rx\n");
             Console.WriteLine("---------------\n");
             Console.WriteLine($"Join our discord server! https://discord.gg/q3vS9yp");
+            Console.WriteLine("\n---------------\n");
+            Console.WriteLine("Please note that every single feature is detected.");
+            Console.WriteLine("Use only at your own risk.");
+            Console.WriteLine("\n---------------");
 
             switch (Console.ReadKey(true).Key)
             {
@@ -328,7 +332,8 @@ namespace osu_rx
             Console.WriteLine($"6. Maximum hold time        | [{configManager.HitTimingsMaxHoldTime}ms]");
             Console.WriteLine($"7. Minimum slider hold time | [{configManager.HitTimingsMinSliderHoldTime}ms]");
             Console.WriteLine($"8. Maximum slider hold time | [{configManager.HitTimingsMaxSliderHoldTime}ms]");
-            Console.WriteLine($"9. Double delay factor      | [{configManager.HitTimingsDoubleDelayFactor}x]");
+            Console.WriteLine($"9. Double delay factor      | [{configManager.HitTimingsDoubleDelayFactor}x]\n");
+            Console.WriteLine($"0. Fallback timing system   | [{(configManager.HitTimingsUseFallbackTimingSystem ? "ENABLED" : "DISABLED")}]");
 
             Console.WriteLine("\nESC. Back to relax settings");
 
@@ -413,6 +418,10 @@ namespace osu_rx
                         configManager.HitTimingsDoubleDelayFactor = doubleDelayFactor;
                     else
                         goto case ConsoleKey.D9;
+                    DrawHitTimingsSettings();
+                    break;
+                case ConsoleKey.D0:
+                    configManager.HitTimingsUseFallbackTimingSystem = !configManager.HitTimingsUseFallbackTimingSystem;
                     DrawHitTimingsSettings();
                     break;
                 case ConsoleKey.Escape:
@@ -513,13 +522,6 @@ namespace osu_rx
             Console.WriteLine("---Timewarp Settings---\n");
             Console.WriteLine($"1. Timewarp      | [{(configManager.EnableTimewarp ? "ENABLED" : "DISABLED")}]");
             Console.WriteLine($"2. Timewarp rate | [{configManager.TimewarpRate}x]\n");
-
-            Console.WriteLine("---!!!---");
-            Console.WriteLine("Please note that timewarp is only partially undetected at this moment.");
-            Console.WriteLine("Bancho (and probably any other server) can't detect it and auto-restrict you.");
-            Console.WriteLine("But third party anticheats, such as firedigger's replay analyzer and circleguard will detect timewarp presence.\n");
-            Console.WriteLine("Use only at your own risk.");
-            Console.WriteLine("---!!!---");
 
             Console.WriteLine("\nESC. Back to settings");
 

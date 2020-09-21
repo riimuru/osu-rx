@@ -5,6 +5,7 @@ using osu.Memory.Objects.Player.Beatmaps;
 using osu.Memory.Objects.Player.Beatmaps.Objects;
 using osu_rx.Configuration;
 using osu_rx.Core.Relax.Accuracy;
+using osu_rx.Helpers;
 using SimpleDependencyInjection;
 using System.Threading;
 using WindowsInput;
@@ -62,7 +63,10 @@ namespace osu_rx.Core.Relax
 
             while (osuManager.CanPlay && index < beatmap.HitObjects.Count && !shouldStop)
             {
-                Thread.Sleep(1);
+                if (configManager.HitTimingsUseFallbackTimingSystem)
+                    Thread.Sleep(1);
+                else
+                    TimingHelper.Delay(1);
 
                 if (osuManager.IsPaused)
                 {
