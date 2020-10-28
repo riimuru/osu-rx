@@ -35,7 +35,7 @@ osu!rx and the [framework](OsuManager) it's built on are still heavily under dev
 - Extract downloaded archive into any folder.
 - Run osu!rx.exe
 - Change any setting you want.
-- Select "Start relax" option in the main menu.
+- Select "Start" option in the main menu.
 - Go back to osu! and select beatmap you want to play.
 - Start playing!
 
