@@ -87,3 +87,12 @@ Rough ETA is the year 2020.
 ## Demonstation video
 ***osu!rx does not affect performance. In this case lags were caused by obs and cute girls in the background.***
 [![Video](https://i.ibb.co/grQSzMP/screenshot065.png)](https://www.youtube.com/watch?v=1FUxnGqjASQ)
+
+## Special thanks to
+[Azuki](https://github.com/Azukee) and [HoLLy](https://github.com/HoLLy-HaCKeR) for being cuties and helping me with development ~❤️  
+**Capri**, **Bbounty**, **paprika** and **LunaNASA** for supporting me financially 💵
+
+And of course huge thanks to all users of osu!rx!
+
+I wouldn't have gotten this far without you guys.  
+Stay tuned for some awesome stuff!
