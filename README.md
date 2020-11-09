@@ -27,7 +27,7 @@ osu!rx and the [framework](OsuManager) it's built on are still heavily under dev
 
 ## Running osu!rx
 **Download latest build from one of the sources below:**  
-| [MPGH (every build is approved by forum admin)](https://www.mpgh.net/forum/showthread.php?t=1488076) | GitHub builds will be available soon! |
+| [MPGH (every build is approved by forum admin)](https://www.mpgh.net/forum/showthread.php?t=1488076) | [Latest GitHub build](https://github.com/mrflashstudio/osu-rx/releases/latest) |
 |-----------------------------------------------|-----------|  
 
 *Paranoids can compile source code themselves ;)*
