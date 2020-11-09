@@ -73,7 +73,7 @@ namespace osu_rx
             version = version.Remove(version.LastIndexOf(".0"));
 
             Console.Clear();
-            Console.WriteLine($"osu!rx v{version} (MPGH release)");
+            Console.WriteLine($"osu!rx v{version} (GitHub release)");
             Console.WriteLine("\n---Main Menu---");
             Console.WriteLine("\n1. Start");
             Console.WriteLine("2. Settings\n");
