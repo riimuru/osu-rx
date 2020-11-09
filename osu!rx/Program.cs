@@ -85,6 +85,10 @@ namespace osu_rx
             Console.WriteLine("Please note that every single feature is detected.");
             Console.WriteLine("Use only at your own risk.");
             Console.WriteLine("\n---------------");
+            Console.WriteLine("\nSpecial thanks to:\n");
+            Console.WriteLine("Azuki and HoLLy for being cuties and helping me with development ~ <3");
+            Console.WriteLine("Capri, Bbounty, paprika and LunaNASA for supporting me financially $$$");
+            Console.WriteLine("\n---------------");
 
             switch (Console.ReadKey(true).Key)
             {
