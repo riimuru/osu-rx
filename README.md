@@ -90,7 +90,7 @@ Rough ETA is the year 2021.
 
 ## Special thanks to
 [Azuki](https://github.com/Azukee) and [HoLLy](https://github.com/HoLLy-HaCKeR) for being cuties and helping me with development ~❤️  
-**Capri**, **Bbounty**, **paprika** and **LunaNASA** for supporting me financially 💵
+**Capri**, **paprika**, **PerfectlyPlayer?!**, **de1uxe** and **LunaNASA** for supporting me financially 💵
 
 And of course huge thanks to all users of osu!rx!
 
