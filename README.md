@@ -82,7 +82,7 @@ ew. I mean, you can use it on [kawata](https://kawata.pw/), but you should feel 
 ### When will undetected osu!rx v2.0.0 release?
 Never ask this kind of question to an independent developer. **Never**.  
 We all have our own lives and problems, so please just be patient.  
-Rough ETA is the year 2020.
+Rough ETA is the year 2021.
 
 ## Demonstation video
 ***osu!rx does not affect performance. In this case lags were caused by obs and cute girls in the background.***
